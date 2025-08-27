@@ -14,7 +14,7 @@ body {
 }
 
 .popup-container {
-  width: 400px;
+  width: 200px;
   min-height: 400px;
   background: #ffffff;
   border-radius: 12px;
@@ -94,7 +94,7 @@ body {
   border: 2px solid transparent;
   transition: all 0.2s ease;
   background: #ffffff;
-  min-width: 280px;
+  min-width: 180px;
 }
 
 .mode-option:hover {

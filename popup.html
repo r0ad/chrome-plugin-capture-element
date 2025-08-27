@@ -14,14 +14,9 @@
           <path d="M9 2C8.45 2 8 2.45 8 3V4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4H16V3C16 2.45 15.55 2 15 2H9ZM12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="currentColor"/>
         </svg>
       </div>
-      <h1>元素截图工具</h1>
     </div>
     
     <div class="content">
-      <p class="description">
-        点击按钮开始截图，支持双模式自动切换
-      </p>
-      
       <div class="mode-selector">
         <label class="mode-label">截图模式：</label>
         <div class="mode-options">
@@ -33,7 +28,7 @@
               </svg>
               原生模式
             </span>
-            <span class="mode-desc">高质量、快速截图</span>
+            <!-- <span class="mode-desc">快速</span> -->
           </label>
           <label class="mode-option">
             <input type="radio" name="captureMode" value="html2canvas">
@@ -43,7 +38,7 @@
               </svg>
               HTML2Canvas
             </span>
-            <span class="mode-desc">兼容性备选模式</span>
+            <!-- <span class="mode-desc">兼容好</span> -->
           </label>
         </div>
       </div>
@@ -73,19 +68,6 @@
         </div>
       </div>
       
-      <div class="status" id="status">
-        <span class="status-text">准备就绪</span>
-      </div>
-    </div>
-    
-    <div class="footer">
-      <div class="version">v1.0.0</div>
-      <div class="tips">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill="currentColor"/>
-        </svg>
-        支持所有网页元素截图
-      </div>
     </div>
   </div>
   
