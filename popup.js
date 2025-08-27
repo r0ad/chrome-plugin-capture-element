@@ -195,14 +195,14 @@ class PopupController {
   }
 
   updateStatus(message, type = 'ready') {
-    const statusText = this.statusElement.querySelector('.status-text');
-    statusText.textContent = message;
+    // const statusText = this.statusElement.querySelector('.status-text');
+    // statusText.textContent = message;
     
-    // 移除所有状态类
-    this.statusElement.classList.remove('ready', 'loading', 'capturing', 'error', 'success');
+    // // 移除所有状态类
+    // this.statusElement.classList.remove('ready', 'loading', 'capturing', 'error', 'success');
     
-    // 添加新的状态类
-    this.statusElement.classList.add(type);
+    // // 添加新的状态类
+    // this.statusElement.classList.add(type);
   }
 }
 
