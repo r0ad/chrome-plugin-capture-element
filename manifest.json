@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Element Screenshot Capture",
+  "version": "1.0.0",
+  "description": "快速截图选中的页面元素并保存到本地",
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "元素截图工具"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["libs/html2canvas.min.js", "content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  
+  "icons": {
+     "16": "icons/icon16.png",
+     "48": "icons/icon48.png",
+     "128": "icons/icon128.png"
+   }
+}

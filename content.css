@@ -1,0 +1,88 @@
+/* 元素截图插件 - 内容脚本样式 */
+
+.element-capture-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  z-index: 999999 !important;
+  cursor: crosshair !important;
+  pointer-events: none !important;
+}
+
+.element-capture-highlight {
+  position: absolute !important;
+  border: 2px solid #ff4444 !important;
+  background: rgba(255, 68, 68, 0.1) !important;
+  z-index: 1000000 !important;
+  pointer-events: none !important;
+  display: none !important;
+  box-shadow: 0 0 10px rgba(255, 68, 68, 0.5) !important;
+  transition: all 0.1s ease !important;
+}
+
+.element-capture-toast {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  background: #333 !important;
+  color: white !important;
+  padding: 12px 20px !important;
+  border-radius: 6px !important;
+  z-index: 1000001 !important;
+  font-size: 14px !important;
+  font-family: Arial, sans-serif !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  animation: elementCaptureSlideIn 0.3s ease-out !important;
+  max-width: 300px !important;
+  word-wrap: break-word !important;
+}
+
+@keyframes elementCaptureSlideIn {
+  from {
+    transform: translateX(100%) !important;
+    opacity: 0 !important;
+  }
+  to {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+  }
+}
+
+@keyframes elementCaptureSlideOut {
+  from {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+  }
+  to {
+    transform: translateX(100%) !important;
+    opacity: 0 !important;
+  }
+}
+
+/* 确保高亮框在所有元素之上 */
+.element-capture-highlight::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -2px !important;
+  left: -2px !important;
+  right: -2px !important;
+  bottom: -2px !important;
+  border: 2px solid #ff4444 !important;
+  border-radius: 2px !important;
+  animation: elementCapturePulse 1.5s infinite !important;
+}
+
+@keyframes elementCapturePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7) !important;
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 68, 68, 0) !important;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 68, 68, 0) !important;
+  }
+}

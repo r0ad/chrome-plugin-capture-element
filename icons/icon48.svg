@@ -1,0 +1,47 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#f0f0f0;stop-opacity:0.9" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景圆形 -->
+  <circle cx="24" cy="24" r="22" fill="url(#grad1)" stroke="#ffffff" stroke-width="2"/>
+  
+  <!-- 相机主体 -->
+  <rect x="6" y="14" width="36" height="20" rx="4" fill="#2c3e50"/>
+  <rect x="8" y="16" width="32" height="16" rx="3" fill="url(#grad2)"/>
+  
+  <!-- 镜头外圈 -->
+  <circle cx="24" cy="24" r="8" fill="#34495e"/>
+  <circle cx="24" cy="24" r="7" fill="url(#grad2)"/>
+  
+  <!-- 镜头内圈 -->
+  <circle cx="24" cy="24" r="5" fill="url(#grad1)"/>
+  <circle cx="24" cy="24" r="3" fill="#2c3e50"/>
+  
+  <!-- 镜头反光 -->
+  <ellipse cx="22" cy="22" rx="2" ry="1.5" fill="#ffffff" opacity="0.6" transform="rotate(-30 22 22)"/>
+  
+  <!-- 闪光灯 -->
+  <circle cx="34" cy="18" r="2" fill="#f39c12"/>
+  <circle cx="34" cy="18" r="1.5" fill="#ffffff" opacity="0.8"/>
+  
+  <!-- 取景器 -->
+  <rect x="18" y="8" width="12" height="6" rx="2" fill="#2c3e50"/>
+  <rect x="19" y="9" width="10" height="4" rx="1" fill="url(#grad2)" opacity="0.7"/>
+  
+  <!-- 截图选择框效果 -->
+  <rect x="10" y="18" width="28" height="12" rx="2" fill="none" stroke="#e74c3c" stroke-width="1.5" opacity="0.8" stroke-dasharray="3,2"/>
+  
+  <!-- 选择角标 -->
+  <path d="M10 18 L13 18 L13 21" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/>
+  <path d="M38 18 L35 18 L35 21" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/>
+  <path d="M10 30 L13 30 L13 27" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/>
+  <path d="M38 30 L35 30 L35 27" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/>
+</svg>
