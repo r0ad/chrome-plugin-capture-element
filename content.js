@@ -102,6 +102,11 @@ class ElementCapture {
       clearTimeout(this.hoverTimeout);
       this.hoverTimeout = null;
     }
+    
+    // 确保悬浮高亮也被清理
+    if (this.hoverHighlightBox) {
+      this.hoverHighlightBox.style.display = 'none';
+    }
   }
 
 
@@ -122,7 +127,25 @@ class ElementCapture {
       animation: pulse 1.5s infinite;
     `;
     
-    // 添加脉冲动画样式
+    // 创建悬浮高亮层
+    this.hoverHighlightBox = document.createElement('div');
+    this.hoverHighlightBox.className = 'element-capture-hover-highlight';
+    this.hoverHighlightBox.style.cssText = `
+      position: absolute;
+      border: 2px solid #00ff88;
+      background: rgba(0, 255, 136, 0.08);
+      z-index: 999999;
+      pointer-events: none;
+      display: none;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.4), inset 0 0 20px rgba(0, 255, 136, 0.05);
+      border-radius: 4px;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: hoverPulse 2.5s infinite;
+      opacity: 0.8;
+      transform: scale(1);
+    `;
+    
+    // 添加动画样式
     if (!document.querySelector('#element-capture-styles')) {
       const style = document.createElement('style');
       style.id = 'element-capture-styles';
@@ -132,17 +155,43 @@ class ElementCapture {
           50% { box-shadow: 0 0 30px rgba(255, 68, 68, 1), inset 0 0 30px rgba(255, 68, 68, 0.3); }
           100% { box-shadow: 0 0 20px rgba(255, 68, 68, 0.8), inset 0 0 20px rgba(255, 68, 68, 0.2); }
         }
+        @keyframes hoverPulse {
+          0% { 
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4), inset 0 0 20px rgba(0, 255, 136, 0.05);
+            opacity: 0.8;
+          }
+          50% { 
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.6), inset 0 0 30px rgba(0, 255, 136, 0.1);
+            opacity: 1;
+          }
+          100% { 
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4), inset 0 0 20px rgba(0, 255, 136, 0.05);
+            opacity: 0.8;
+          }
+        }
+        .element-capture-hover-highlight {
+          opacity: 0.8;
+        }
+        .element-capture-hover-highlight:hover {
+          opacity: 1;
+        }
       `;
       document.head.appendChild(style);
     }
     
     document.body.appendChild(this.highlightBox);
+    document.body.appendChild(this.hoverHighlightBox);
   }
 
   removeHighlightBox() {
     if (this.highlightBox) {
       this.highlightBox.remove();
       this.highlightBox = null;
+    }
+    
+    if (this.hoverHighlightBox) {
+      this.hoverHighlightBox.remove();
+      this.hoverHighlightBox = null;
     }
     
     // 清理元素信息框
@@ -166,10 +215,13 @@ class ElementCapture {
       clearTimeout(this.hoverTimeout);
     }
     
+    // 立即显示悬浮高亮效果
+    this.showHoverHighlight(event.clientX, event.clientY);
+    
     // 设置短暂延迟以避免频繁更新
     this.hoverTimeout = setTimeout(() => {
       const element = document.elementFromPoint(event.clientX, event.clientY);
-      if (!element || element === this.highlightBox) return;
+      if (!element || element === this.highlightBox || element === this.hoverHighlightBox) return;
       
       // 构建元素层级堆栈
       this.buildElementStack(element, event.clientX, event.clientY);
@@ -183,6 +235,63 @@ class ElementCapture {
         this.showElementInfo(this.currentElement, this.currentStackIndex + 1, this.elementStack.length);
       }
     }, 50); // 50ms延迟，平衡响应性和性能
+  }
+  
+  // 显示悬浮高亮效果
+  showHoverHighlight(x, y) {
+    if (!this.hoverHighlightBox) return;
+    
+    const element = document.elementFromPoint(x, y);
+    if (!element || element === this.highlightBox || element === this.hoverHighlightBox) {
+      this.hoverHighlightBox.style.display = 'none';
+      return;
+    }
+    
+    // 过滤掉不需要高亮的元素
+    if (this.shouldSkipElement(element)) {
+      this.hoverHighlightBox.style.display = 'none';
+      return;
+    }
+    
+    const rect = element.getBoundingClientRect();
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // 检查元素是否足够大（避免高亮过小的元素）
+    if (rect.width >= 10 && rect.height >= 10) {
+      this.hoverHighlightBox.style.display = 'block';
+      this.hoverHighlightBox.style.left = (rect.left + scrollX) + 'px';
+      this.hoverHighlightBox.style.top = (rect.top + scrollY) + 'px';
+      this.hoverHighlightBox.style.width = rect.width + 'px';
+      this.hoverHighlightBox.style.height = rect.height + 'px';
+    } else {
+      this.hoverHighlightBox.style.display = 'none';
+    }
+  }
+  
+  // 判断是否应该跳过某个元素
+  shouldSkipElement(element) {
+    // 跳过插件自己的元素
+    if (element.classList.contains('element-capture-highlight') || 
+        element.classList.contains('element-capture-hover-highlight') ||
+        element.classList.contains('element-capture-info') ||
+        element.classList.contains('element-capture-toast')) {
+      return true;
+    }
+    
+    // 跳过不可见的元素
+    const style = window.getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+      return true;
+    }
+    
+    // 跳过过小的元素
+    const rect = element.getBoundingClientRect();
+    if (rect.width < 5 || rect.height < 5) {
+      return true;
+    }
+    
+    return false;
   }
   
   // 构建元素层级堆栈
@@ -243,6 +352,11 @@ class ElementCapture {
     this.highlightBox.style.top = (rect.top + scrollY) + 'px';
     this.highlightBox.style.width = rect.width + 'px';
     this.highlightBox.style.height = rect.height + 'px';
+    
+    // 隐藏悬浮高亮，避免重叠
+    if (this.hoverHighlightBox) {
+      this.hoverHighlightBox.style.display = 'none';
+    }
   }
   
   // 显示元素信息
@@ -266,6 +380,7 @@ class ElementCapture {
       <div style="font-weight: bold; margin-bottom: 4px;">📍 ${elementDesc}</div>
       <div style="font-size: 12px; opacity: 0.8;">层级: ${currentLevel}/${totalLevels} | 滚轮切换</div>
       <div style="font-size: 11px; opacity: 0.6; margin-top: 2px;">${Math.round(element.getBoundingClientRect().width)}×${Math.round(element.getBoundingClientRect().height)}px</div>
+      <div style="font-size: 10px; opacity: 0.5; margin-top: 3px; color: #00ff88;">💡 绿色高亮=悬浮预览 | 红色高亮=已选中</div>
     `;
     
     info.style.cssText = `
