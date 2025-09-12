@@ -14,8 +14,8 @@ body {
 }
 
 .popup-container {
-  width: 200px;
-  min-height: 400px;
+  width: 280px;
+  min-height: 500px;
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -54,6 +54,64 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.config-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e9ecef;
+}
+
+.config-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.config-item {
+  margin-bottom: 12px;
+}
+
+.config-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6c757d;
+  margin-bottom: 8px;
+}
+
+.action-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quick-info {
+  background: #e3f2fd;
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 3px solid #2196f3;
+}
+
+.quick-info p {
+  font-size: 12px;
+  color: #1976d2;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.quick-info p:not(:last-child) {
+  margin-bottom: 4px;
+}
+
+#currentMode {
+  font-weight: 600;
+  color: #0d47a1;
 }
 
 .description {

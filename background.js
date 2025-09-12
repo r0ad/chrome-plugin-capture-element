@@ -5,6 +5,8 @@ class BackgroundService {
   }
 
   init() {
+    console.log('BackgroundService 初始化中...');
+    
     // 监听来自content script的消息
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       console.log('收到消息:', request.action, sender.tab?.id);
@@ -39,8 +41,26 @@ class BackgroundService {
 
     // 监听插件图标点击事件
     chrome.action.onClicked.addListener((tab) => {
+      console.log('插件图标被点击，标签页ID:', tab.id);
       this.toggleCapture(tab.id);
     });
+    
+    // 创建右键菜单
+    chrome.contextMenus.create({
+      id: 'startElementCapture',
+      title: '开始元素截图',
+      contexts: ['page']
+    });
+    
+    // 监听右键菜单点击
+    chrome.contextMenus.onClicked.addListener((info, tab) => {
+      if (info.menuItemId === 'startElementCapture') {
+        console.log('右键菜单被点击，标签页ID:', tab.id);
+        this.toggleCapture(tab.id);
+      }
+    });
+    
+    console.log('BackgroundService 初始化完成');
   }
 
   async handleElementCapture(captureData, tabId) {
@@ -223,16 +243,43 @@ class BackgroundService {
   }
 
   async toggleCapture(tabId) {
+    console.log('开始启动截图功能，标签页ID:', tabId);
+    
     try {
-      // 向content script发送开始截图的消息
-      await chrome.tabs.sendMessage(tabId, { action: 'startCapture' });
+      // 检查标签页是否存在
+      const tab = await chrome.tabs.get(tabId);
+      console.log('目标标签页:', tab.url);
+      
+      // 检查是否是特殊页面
+      if (tab.url.startsWith('chrome://') || 
+          tab.url.startsWith('chrome-extension://') || 
+          tab.url.startsWith('edge://') || 
+          tab.url.startsWith('about:')) {
+        console.log('特殊页面，无法截图:', tab.url);
+        return;
+      }
+      
+      // 获取默认截图模式配置
+      const result = await chrome.storage.sync.get(['defaultCaptureMode']);
+      const defaultMode = result.defaultCaptureMode || 'snapdom';
+      console.log('使用默认模式:', defaultMode);
+      
+      // 向content script发送开始截图的消息，包含默认模式
+      await chrome.tabs.sendMessage(tabId, { 
+        action: 'startCapture',
+        mode: defaultMode
+      });
+      console.log('消息发送成功');
+      
     } catch (error) {
       console.error('无法启动截图功能:', error);
+      
       // 如果content script未加载，尝试注入
       try {
+        console.log('尝试注入content script...');
         await chrome.scripting.executeScript({
           target: { tabId: tabId },
-          files: ['content.js']
+          files: ['libs/html2canvas.min.js', 'libs/snapdom.min.js', 'content.js']
         });
         
         await chrome.scripting.insertCSS({
@@ -240,14 +287,23 @@ class BackgroundService {
           files: ['content.css']
         });
         
+        console.log('Content script注入成功，等待加载...');
+        
         // 重新尝试发送消息
         setTimeout(async () => {
           try {
-            await chrome.tabs.sendMessage(tabId, { action: 'startCapture' });
+            const result = await chrome.storage.sync.get(['defaultCaptureMode']);
+            const defaultMode = result.defaultCaptureMode || 'snapdom';
+            console.log('重新发送消息，模式:', defaultMode);
+            await chrome.tabs.sendMessage(tabId, { 
+              action: 'startCapture',
+              mode: defaultMode
+            });
+            console.log('重新发送消息成功');
           } catch (e) {
             console.error('注入后仍无法启动截图功能:', e);
           }
-        }, 100);
+        }, 500); // 增加等待时间
       } catch (injectError) {
         console.error('无法注入content script:', injectError);
       }

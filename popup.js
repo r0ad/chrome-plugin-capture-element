@@ -10,12 +10,20 @@ class PopupController {
     this.startCaptureBtn = document.getElementById('startCapture');
     this.statusElement = document.getElementById('status');
     this.modeRadios = document.querySelectorAll('input[name="captureMode"]');
+    this.defaultModeRadios = document.querySelectorAll('input[name="defaultCaptureMode"]');
+    this.currentModeSpan = document.getElementById('currentMode');
     
     // 绑定事件
     this.startCaptureBtn.addEventListener('click', this.handleStartCapture.bind(this));
     this.modeRadios.forEach(radio => {
       radio.addEventListener('change', this.handleModeChange.bind(this));
     });
+    this.defaultModeRadios.forEach(radio => {
+      radio.addEventListener('change', this.handleDefaultModeChange.bind(this));
+    });
+    
+    // 加载配置
+    this.loadConfig();
     
     // 检查当前标签页状态
     this.checkCurrentTabStatus();
@@ -42,6 +50,56 @@ class PopupController {
   getSelectedMode() {
     const selectedRadio = document.querySelector('input[name="captureMode"]:checked');
     return selectedRadio ? selectedRadio.value : 'snapdom';
+  }
+
+  // 加载配置
+  async loadConfig() {
+    try {
+      const result = await chrome.storage.sync.get(['defaultCaptureMode']);
+      const defaultMode = result.defaultCaptureMode || 'snapdom';
+      
+      // 设置默认模式选择
+      const defaultRadio = document.querySelector(`input[name="defaultCaptureMode"][value="${defaultMode}"]`);
+      if (defaultRadio) {
+        defaultRadio.checked = true;
+      }
+      
+      // 更新显示
+      this.updateCurrentModeDisplay(defaultMode);
+    } catch (error) {
+      console.error('加载配置失败:', error);
+    }
+  }
+
+  // 处理默认模式变更
+  async handleDefaultModeChange(event) {
+    const selectedMode = event.target.value;
+    console.log('默认截图模式切换为:', selectedMode);
+    
+    try {
+      // 保存配置
+      await chrome.storage.sync.set({ defaultCaptureMode: selectedMode });
+      
+      // 更新显示
+      this.updateCurrentModeDisplay(selectedMode);
+      
+      console.log('默认模式配置已保存');
+    } catch (error) {
+      console.error('保存配置失败:', error);
+    }
+  }
+
+  // 更新当前模式显示
+  updateCurrentModeDisplay(mode) {
+    const modeNames = {
+      'native': '原生模式',
+      'html2canvas': 'HTML2Canvas',
+      'snapdom': 'SnapDOM'
+    };
+    
+    if (this.currentModeSpan) {
+      this.currentModeSpan.textContent = modeNames[mode] || mode;
+    }
   }
 
   async checkCurrentTabStatus() {
