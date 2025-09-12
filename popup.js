@@ -91,8 +91,25 @@ class PopupController {
         throw new Error('无法获取当前标签页');
       }
       
+      // 检查是否是特殊页面
+      if (tab.url.startsWith('chrome://') || 
+          tab.url.startsWith('chrome-extension://') || 
+          tab.url.startsWith('edge://') || 
+          tab.url.startsWith('about:')) {
+        throw new Error('此页面不支持截图功能');
+      }
+      
       // 获取选中的截图模式
       const selectedMode = this.getSelectedMode();
+      
+      // 先尝试注入content script（如果未加载）
+      try {
+        await this.injectContentScript();
+        // 等待一下让content script完全加载
+        await new Promise(resolve => setTimeout(resolve, 200));
+      } catch (injectError) {
+        console.log('Content script可能已存在，继续尝试发送消息');
+      }
       
       // 发送消息到content script
       const response = await chrome.tabs.sendMessage(tab.id, { 
@@ -116,7 +133,8 @@ class PopupController {
       console.error('启动截图失败:', error);
       
       // 如果content script未加载，尝试注入
-      if (error.message.includes('Could not establish connection')) {
+      if (error.message.includes('Could not establish connection') || 
+          error.message.includes('Receiving end does not exist')) {
         try {
           await this.injectContentScript();
           // 重新尝试启动
@@ -159,19 +177,24 @@ class PopupController {
       throw new Error('无法获取当前标签页');
     }
     
-    // 注入content script
-    await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      files: ['content.js']
-    });
-    
-    // 注入CSS
-    await chrome.scripting.insertCSS({
-      target: { tabId: tab.id },
-      files: ['content.css']
-    });
-    
-    this.updateStatus('已注入截图功能，正在启动...', 'loading');
+    try {
+      // 注入所有必要的JS文件
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['libs/html2canvas.min.js', 'libs/snapdom.min.js', 'content.js']
+      });
+      
+      // 注入CSS
+      await chrome.scripting.insertCSS({
+        target: { tabId: tab.id },
+        files: ['content.css']
+      });
+      
+      this.updateStatus('已注入截图功能，正在启动...', 'loading');
+    } catch (error) {
+      console.error('注入脚本失败:', error);
+      throw new Error(`注入失败: ${error.message}`);
+    }
   }
 
   updateCaptureButton() {

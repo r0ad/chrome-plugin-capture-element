@@ -1,4 +1,11 @@
 // 元素截图插件 - 内容脚本
+
+// 防止重复初始化
+if (window.elementCaptureInstance) {
+  console.log('ElementCapture already initialized, skipping...');
+} else {
+  window.elementCaptureInstance = true;
+
 class ElementCapture {
   constructor() {
     this.isSelecting = false;
@@ -7,7 +14,7 @@ class ElementCapture {
     this.hoverTimeout = null;
     this.elementStack = [];
     this.currentStackIndex = 0;
-    this.captureMode = 'native'; // 默认使用原生截图模式，可选 'native' 或 'html2canvas'
+    this.captureMode = 'snapdom'; // 默认使用SnapDOM截图模式，可选 'native'、'html2canvas' 或 'snapdom'
     
     // 绑定事件处理函数以确保正确的this上下文和函数引用
     this.boundHandleMouseMove = this.handleMouseMove.bind(this);
@@ -19,23 +26,44 @@ class ElementCapture {
   }
 
   init() {
+    console.log('ElementCapture 初始化中...');
+    
+    // 检查依赖库是否加载
+    console.log('html2canvas 可用:', typeof html2canvas !== 'undefined');
+    console.log('snapdom 可用:', typeof snapdom !== 'undefined');
+    
+    // 检查snapdom的具体方法
+    if (typeof snapdom !== 'undefined') {
+      console.log('snapdom 方法:', Object.keys(snapdom));
+      console.log('snapdom.toPng 可用:', typeof snapdom.toPng === 'function');
+      console.log('snapdom.toBlob 可用:', typeof snapdom.toBlob === 'function');
+    }
+    
     // 监听来自popup的消息
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      console.log('收到消息:', request);
+      
       if (request.mode) {
         this.captureMode = request.mode;
+        console.log('设置截图模式为:', this.captureMode);
       }
       
       if (request.action === 'startCapture') {
+        console.log('开始元素选择');
         this.startElementSelection();
         sendResponse({ success: true });
       } else if (request.action === 'stopCapture') {
+        console.log('停止元素选择');
         this.stopElementSelection();
         sendResponse({ success: true });
       } else if (request.action === 'setCaptureMode') {
         this.captureMode = request.mode || 'native';
+        console.log('设置截图模式为:', this.captureMode);
         sendResponse({ success: true, mode: this.captureMode });
       }
     });
+    
+    console.log('ElementCapture 初始化完成');
   }
 
   startElementSelection() {
@@ -285,7 +313,12 @@ class ElementCapture {
 
   async captureElement(element) {
     try {
-      this.showToast(`📸 正在截图元素... (${this.captureMode === 'native' ? '原生模式' : 'HTML2Canvas模式'})`);
+      const modeNames = {
+        'native': '原生模式',
+        'html2canvas': 'HTML2Canvas模式',
+        'snapdom': 'SnapDOM模式'
+      };
+      this.showToast(`📸 正在截图元素... (${modeNames[this.captureMode] || '未知模式'})`);
       
       // 获取元素信息
       const elementInfo = {
@@ -299,6 +332,8 @@ class ElementCapture {
       
       if (this.captureMode === 'native') {
         await this.captureWithNativeAPI(element, elementInfo);
+      } else if (this.captureMode === 'snapdom') {
+        await this.captureWithSnapDOM(element, elementInfo);
       } else {
         await this.captureWithHtml2Canvas(element, elementInfo);
       }
@@ -407,6 +442,107 @@ class ElementCapture {
     }
   }
   
+  // 使用snapDOM截图
+  async captureWithSnapDOM(element, elementInfo) {
+    try {
+      // 检查snapdom是否可用
+      if (typeof snapdom === 'undefined') {
+        this.showToast('❌ SnapDOM库未加载');
+        return;
+      }
+      
+      this.showToast('📸 使用SnapDOM进行截图...');
+      
+      console.log('开始SnapDOM截图，元素:', element);
+      console.log('SnapDOM可用方法:', Object.keys(snapdom));
+      
+      // 使用SnapDOM API，根据源码分析使用正确的参数
+      const result = await snapdom(element, {
+        scale: Math.max(window.devicePixelRatio || 1, 2),
+        backgroundColor: '#ffffff',
+        quality: 1.0,
+        fast: false, // 关闭快速模式以确保更好的渲染质量
+        embedFonts: true, // 嵌入字体以确保文本渲染一致
+        dpr: window.devicePixelRatio || 1, // 使用设备像素比
+        cache: 'disabled' // 禁用缓存确保每次都是最新渲染
+      });
+      
+      console.log('SnapDOM结果对象:', result);
+      console.log('结果对象方法:', Object.keys(result));
+      
+      // 使用toPng()方法获取HTMLImageElement
+      const imgElement = await result.toPng();
+      
+      console.log('获取到的图片元素:', imgElement);
+      console.log('图片尺寸:', imgElement.width, 'x', imgElement.height);
+      console.log('自然尺寸:', imgElement.naturalWidth, 'x', imgElement.naturalHeight);
+      
+      // 将图片元素转换为DataURL
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // 设置canvas尺寸
+      const width = imgElement.naturalWidth || imgElement.width;
+      const height = imgElement.naturalHeight || imgElement.height;
+      
+      if (width <= 0 || height <= 0) {
+        throw new Error(`无效的图片尺寸: ${width}x${height}`);
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      // 绘制图片到canvas
+      ctx.drawImage(imgElement, 0, 0, width, height);
+      
+      // 转换为DataURL
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
+      
+      console.log('生成的DataURL长度:', dataUrl.length);
+      
+      if (!dataUrl || dataUrl === 'data:,') {
+        throw new Error('生成的DataURL无效');
+      }
+      
+      // 发送到background script进行下载
+      chrome.runtime.sendMessage({
+        action: 'downloadImage',
+        data: {
+          dataUrl: dataUrl,
+          elementInfo: elementInfo
+        }
+      }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.error('下载消息发送失败:', chrome.runtime.lastError);
+          this.showToast(`❌ 连接失败: ${chrome.runtime.lastError.message}`);
+          return;
+        }
+        
+        if (response && response.success) {
+          this.showToast(`✅ 截图已保存: ${response.filename}`);
+        } else {
+          console.error('下载响应错误:', response);
+          this.showToast(`❌ 下载失败: ${response?.error || '未知错误'}`);
+        }
+      });
+      
+    } catch (error) {
+      console.error('SnapDOM截图失败:', error);
+      this.showToast(`❌ SnapDOM截图失败: ${error.message}`);
+      
+      // 如果SnapDOM失败，自动回退到HTML2Canvas
+      console.log('SnapDOM失败，自动切换到HTML2Canvas模式');
+      this.showToast('🔄 SnapDOM失败，切换到HTML2Canvas模式...');
+      
+      try {
+        await this.captureWithHtml2Canvas(element, elementInfo);
+      } catch (fallbackError) {
+        console.error('HTML2Canvas回退也失败:', fallbackError);
+        this.showToast(`❌ 所有截图方式都失败: ${fallbackError.message}`);
+      }
+    }
+  }
+
   // 使用html2canvas截图
   async captureWithHtml2Canvas(element, elementInfo) {
     try {
@@ -538,3 +674,5 @@ class ElementCapture {
 
 // 初始化元素捕获功能
 const elementCapture = new ElementCapture();
+
+} // 结束防止重复初始化的检查
