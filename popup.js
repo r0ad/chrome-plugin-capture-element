@@ -41,7 +41,7 @@ class PopupController {
   
   getSelectedMode() {
     const selectedRadio = document.querySelector('input[name="captureMode"]:checked');
-    return selectedRadio ? selectedRadio.value : 'native';
+    return selectedRadio ? selectedRadio.value : 'snapdom';
   }
 
   async checkCurrentTabStatus() {
