@@ -52,11 +52,20 @@ class BackgroundService {
       contexts: ['page']
     });
     
+    chrome.contextMenus.create({
+      id: 'captureSettings',
+      title: '截图设置',
+      contexts: ['page']
+    });
+    
     // 监听右键菜单点击
     chrome.contextMenus.onClicked.addListener((info, tab) => {
       if (info.menuItemId === 'startElementCapture') {
         console.log('右键菜单被点击，标签页ID:', tab.id);
         this.toggleCapture(tab.id);
+      } else if (info.menuItemId === 'captureSettings') {
+        console.log('截图设置被点击');
+        this.openSettings();
       }
     });
     
@@ -240,6 +249,19 @@ class BackgroundService {
       String(now.getSeconds()).padStart(2, '0');
     
     return `element_screenshot_${timestamp}.png`;
+  }
+
+  // 打开设置页面
+  async openSettings() {
+    try {
+      // 创建新标签页打开设置页面
+      await chrome.tabs.create({
+        url: chrome.runtime.getURL('popup.html'),
+        active: true
+      });
+    } catch (error) {
+      console.error('无法打开设置页面:', error);
+    }
   }
 
   async toggleCapture(tabId) {

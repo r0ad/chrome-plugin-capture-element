@@ -22,6 +22,17 @@ class PopupController {
       radio.addEventListener('change', this.handleDefaultModeChange.bind(this));
     });
     
+    // 为模式卡片添加点击事件
+    document.querySelectorAll('.mode-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        const radio = card.querySelector('input[type="radio"]');
+        if (radio) {
+          radio.checked = true;
+          radio.dispatchEvent(new Event('change'));
+        }
+      });
+    });
+    
     // 加载配置
     this.loadConfig();
     
@@ -100,35 +111,22 @@ class PopupController {
     if (this.currentModeSpan) {
       this.currentModeSpan.textContent = modeNames[mode] || mode;
     }
+    
+    // 更新模式卡片的选中状态
+    document.querySelectorAll('.mode-card').forEach(card => {
+      card.classList.remove('selected');
+      if (card.dataset.mode === mode) {
+        card.classList.add('selected');
+      }
+    });
   }
 
   async checkCurrentTabStatus() {
-    try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      
-      if (!tab) {
-        this.updateStatus('无法获取当前标签页', 'error');
-        this.startCaptureBtn.disabled = true;
-        return;
-      }
-      
-      // 检查是否是特殊页面（chrome://、chrome-extension://等）
-      if (tab.url.startsWith('chrome://') || 
-          tab.url.startsWith('chrome-extension://') || 
-          tab.url.startsWith('edge://') || 
-          tab.url.startsWith('about:')) {
-        this.updateStatus('此页面不支持截图功能', 'error');
-        this.startCaptureBtn.disabled = true;
-        return;
-      }
-      
-      this.updateStatus('准备就绪', 'ready');
-      this.startCaptureBtn.disabled = false;
-    } catch (error) {
-      console.error('检查标签页状态失败:', error);
-      this.updateStatus('检查页面状态失败', 'error');
-      this.startCaptureBtn.disabled = true;
+    // 设置页面模式，隐藏开始截图按钮
+    if (this.startCaptureBtn) {
+      this.startCaptureBtn.style.display = 'none';
     }
+    console.log('设置页面模式，隐藏开始截图按钮');
   }
 
   async handleStartCapture() {
@@ -276,14 +274,8 @@ class PopupController {
   }
 
   updateStatus(message, type = 'ready') {
-    // const statusText = this.statusElement.querySelector('.status-text');
-    // statusText.textContent = message;
-    
-    // // 移除所有状态类
-    // this.statusElement.classList.remove('ready', 'loading', 'capturing', 'error', 'success');
-    
-    // // 添加新的状态类
-    // this.statusElement.classList.add(type);
+    // 设置页面模式，不需要状态显示
+    console.log('状态更新:', message, type);
   }
 }
 
