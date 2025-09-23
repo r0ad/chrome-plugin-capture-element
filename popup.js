@@ -18,6 +18,9 @@ class PopupController {
     this.currentModeSpan = document.getElementById('currentMode');
     this.languageSelect = document.getElementById('languageSelect');
     
+    // 立即应用选中状态的样式（修复页面刷新时显示问题）
+    this.applySelectedModeStyles();
+    
     // 绑定事件
     this.startCaptureBtn.addEventListener('click', this.handleStartCapture.bind(this));
     this.modeRadios.forEach(radio => {
@@ -212,6 +215,9 @@ class PopupController {
       
       // 更新显示
       this.updateCurrentModeDisplay(defaultMode);
+      
+      // 重新应用选中状态样式
+      this.applySelectedModeStyles();
     } catch (error) {
       console.error('加载配置失败:', error);
     }
@@ -229,10 +235,55 @@ class PopupController {
       // 更新显示
       this.updateCurrentModeDisplay(selectedMode);
       
+      // 重新应用选中状态样式
+      this.applySelectedModeStyles();
+      
       console.log('默认模式配置已保存');
     } catch (error) {
       console.error('保存配置失败:', error);
     }
+  }
+
+  // 立即应用选中状态的样式（修复页面刷新时显示问题）
+  applySelectedModeStyles() {
+    // 首先清除所有模式卡片的选中状态
+    document.querySelectorAll('.mode-card').forEach(card => {
+      card.classList.remove('selected');
+      
+      // 清除内联样式，恢复默认状态
+      const modeContent = card.querySelector('.mode-content');
+      if (modeContent) {
+        modeContent.style.color = '';
+      }
+      
+      const modeIcon = card.querySelector('.mode-icon');
+      if (modeIcon) {
+        modeIcon.style.background = '';
+      }
+    });
+    
+    // 然后应用当前选中状态的样式
+    const checkedRadios = document.querySelectorAll('input[type="radio"]:checked');
+    
+    checkedRadios.forEach(radio => {
+      const card = radio.closest('.mode-card');
+      if (card) {
+        // 添加选中状态的类
+        card.classList.add('selected');
+        
+        // 确保样式正确应用
+        const modeContent = card.querySelector('.mode-content');
+        if (modeContent) {
+          modeContent.style.color = 'white';
+        }
+        
+        // 确保图标样式正确
+        const modeIcon = card.querySelector('.mode-icon');
+        if (modeIcon) {
+          modeIcon.style.background = 'rgba(255, 255, 255, 0.2)';
+        }
+      }
+    });
   }
 
   // 更新当前模式显示
@@ -252,8 +303,29 @@ class PopupController {
     // 更新模式卡片的选中状态
     document.querySelectorAll('.mode-card').forEach(card => {
       card.classList.remove('selected');
+      
+      // 清除内联样式，恢复默认状态
+      const modeContent = card.querySelector('.mode-content');
+      if (modeContent) {
+        modeContent.style.color = '';
+      }
+      
+      const modeIcon = card.querySelector('.mode-icon');
+      if (modeIcon) {
+        modeIcon.style.background = '';
+      }
+      
       if (card.dataset.mode === mode) {
         card.classList.add('selected');
+        
+        // 应用选中状态的样式
+        if (modeContent) {
+          modeContent.style.color = 'white';
+        }
+        
+        if (modeIcon) {
+          modeIcon.style.background = 'rgba(255, 255, 255, 0.2)';
+        }
       }
     });
   }

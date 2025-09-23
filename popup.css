@@ -221,6 +221,22 @@ body {
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
+/* 确保选中状态在页面加载时立即生效 */
+.mode-card:has(input[type="radio"]:checked) {
+  border-color: #4f46e5;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.mode-card:has(input[type="radio"]:checked) .mode-content {
+  color: white;
+}
+
+.mode-card:has(input[type="radio"]:checked) .mode-icon {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .mode-card input[type="radio"]:checked .mode-icon svg {
   fill: white;
 }
