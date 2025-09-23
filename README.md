@@ -1,5 +1,11 @@
 # Chrome 元素截图插件
 
+---
+
+[中文版 README](README.md) | [English README](README-EN.md)
+
+---
+
 一个功能强大的 Chrome 浏览器扩展，支持多种截图模式，提供精确的元素选择和多语言界面。
 
 ## 🌟 核心功能
@@ -19,10 +25,16 @@
 
 ### 🌍 多语言支持
 
-- **中文界面**：完整的中文用户界面
-- **英文界面**：English interface support
-- **动态切换**：实时语言切换，无需重启
-- **右键菜单**：右键菜单也支持多语言
+- 🇨🇳 [中文](lang/zh-CN.json) - 完整的中文用户界面
+- 🇺🇸 [English](lang/en-US.json) - English interface support
+- 🇩🇪 [Deutsch](lang/de-DE.json) - Deutsche Benutzeroberfläche
+- 🇪🇸 [Español](lang/es-ES.json) - Interfaz en español
+- 🇫🇷 [Français](lang/fr-FR.json) - Interface française
+- 🇮🇹 [Italiano](lang/it-IT.json) - Interfaccia italiana
+- 🇯🇵 [日本語](lang/ja-JP.json) - 日本語インターフェース
+- 🇰🇷 [한국어](lang/ko-KR.json) - 한국어 인터페이스
+- 🇵🇹 [Português](lang/pt-BR.json) - Interface em português
+- 🇷🇺 [Русский](lang/ru-RU.json) - Русский интерфейс
 
 ### 🖱️ 多种操作方式
 
@@ -34,34 +46,16 @@
 
 ### 安装方法
 
-1. 打开 Chrome 浏览器
-2. 在地址栏输入 `chrome://extensions/`
-3. 开启右上角的「开发者模式」
-4. 点击「加载已解压的扩展程序」
-5. 选择本插件的文件夹
-6. 插件安装完成，工具栏会显示插件图标
+1. 打开 Chrome 浏览器，访问 `chrome://extensions/`
+2. 开启「开发者模式」
+3. 点击「加载已解压的扩展程序」，选择插件文件夹
+4. 安装完成，工具栏显示插件图标
 
 ### 使用方法
 
-#### 方法一：直接点击图标
-
-1. 点击浏览器工具栏中的插件图标
-2. 页面自动进入选择模式
-3. 悬停选择要截图的元素
-4. 点击元素完成截图
-
-#### 方法二：通过设置界面
-
-1. 点击插件图标打开设置界面
-2. 选择截图模式（SnapDOM/HTML2Canvas/原生）
-3. 点击「开始截图」按钮
-4. 选择并点击要截图的元素
-
-#### 方法三：右键菜单
-
-1. 在页面上右键点击
-2. 选择「元素截图工具」→「开始元素截图」
-3. 选择并点击要截图的元素
+- **方法一**：点击工具栏图标 → 悬停选择元素 → 点击截图
+- **方法二**：点击图标打开设置 → 选择模式 → 开始截图
+- **方法三**：右键菜单 → 「元素截图工具」→ 开始截图
 
 ## ⚙️ 功能详解
 
@@ -81,92 +75,23 @@
 - **⌨️ ESC键**：取消选择模式
 - **📊 状态显示**：页面右上角显示操作状态
 
-### 多语言界面
-
-插件支持完整的多语言界面，包括：
-
-- 设置界面文本
-- 操作提示信息
-- 右键菜单选项
-- 状态反馈消息
-- 错误提示信息
-
 ## 🛠️ 技术架构
-
-### 文件结构
-
-```
-chrome-plugin-capture-element/
-├── manifest.json              # 插件配置文件
-├── background.js              # 后台服务脚本
-├── content.js                 # 内容脚本（页面注入）
-├── content.css                # 内容脚本样式
-├── popup.html                 # 设置界面
-├── popup.js                   # 设置界面逻辑
-├── popup.css                  # 设置界面样式
-├── lang/                      # 多语言文件
-│   ├── index.js              # 语言管理器
-│   ├── zh-CN.json            # 中文翻译
-│   └── en-US.json            # 英文翻译
-├── libs/                      # 第三方库
-│   ├── html2canvas.min.js    # HTML2Canvas库
-│   └── snapdom.min.js        # SnapDOM库
-├── icons/                     # 插件图标
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-└── README.md                  # 说明文档
-```
 
 ### 核心技术
 
 - **Manifest V3**：使用最新的 Chrome 扩展 API
 - **多语言系统**：自定义语言管理器，支持动态切换
-- **多种截图引擎**：
-  - Chrome Native API (`chrome.tabs.captureVisibleTab`)
-  - HTML2Canvas 库
-  - SnapDOM 库
+- **多种截图引擎**：Chrome Native API、HTML2Canvas、SnapDOM
 - **智能元素选择**：DOM 遍历和层级管理
 - **Canvas 图像处理**：精确裁剪和优化
 
 ### 权限说明
 
-```json
-{
-  "permissions": [
-    "activeTab",      // 访问当前活动标签页
-    "downloads",      // 下载文件权限
-    "scripting",      // 脚本注入权限
-    "storage",        // 存储用户设置
-    "contextMenus"    // 右键菜单权限
-  ],
-  "host_permissions": [
-    "<all_urls>"      // 访问所有网站
-  ]
-}
-```
-
-## 🎨 界面预览
-
-### 设置界面
-
-- 现代化渐变设计
-- 直观的模式选择
-- 实时状态反馈
-- 多语言切换
-
-### 选择模式
-
-- 智能元素高亮
-- 平滑动画效果
-- 详细操作提示
-- 层级信息显示
-
-### 右键菜单
-
-- 多语言支持
-- 子菜单结构
-- 快速访问功能
+- `activeTab` - 访问当前活动标签页
+- `downloads` - 下载文件权限
+- `scripting` - 脚本注入权限
+- `storage` - 存储用户设置
+- `contextMenus` - 右键菜单权限
 
 ## 📝 使用技巧
 
@@ -195,21 +120,10 @@ chrome-plugin-capture-element/
 
 ### 自定义配置
 
-可以修改以下文件来自定义插件：
-
 - **`popup.css`**：修改设置界面样式
 - **`content.css`**：修改选择框样式
 - **`lang/*.json`**：修改多语言文本
 - **`background.js`**：修改文件命名规则
-
-### 扩展开发
-
-插件采用模块化设计，易于扩展：
-
-- 添加新的截图模式
-- 支持更多语言
-- 自定义文件命名
-- 添加新的UI功能
 
 ## 📊 更新日志
 
@@ -225,28 +139,22 @@ chrome-plugin-capture-element/
 
 ## ❓ 常见问题
 
-### Q: 为什么某些页面无法使用？
-
+**Q: 为什么某些页面无法使用？**  
 A: 出于安全考虑，Chrome 不允许在 `chrome://`、`chrome-extension://` 等特殊页面使用扩展。
 
-### Q: 哪种截图模式最好？
-
+**Q: 哪种截图模式最好？**  
 A: 推荐使用SnapDOM模式，它性能最佳且支持SVG。如果遇到兼容性问题，可以切换到HTML2Canvas模式。
 
-### Q: 截图质量如何保证？
-
+**Q: 截图质量如何保证？**  
 A: 插件会自动检测设备像素比，确保在高分辨率屏幕上也能获得清晰的截图。
 
-### Q: 截图文件保存在哪里？
-
+**Q: 截图文件保存在哪里？**  
 A: 截图会保存到浏览器的默认下载文件夹，文件名格式为 `element_screenshot_YYYYMMDD_HHMMSS.png`。
 
-### Q: 如何切换语言？
-
+**Q: 如何切换语言？**  
 A: 在设置界面右上角选择语言，或通过右键菜单访问设置。
 
-### Q: 如何取消选择模式？
-
+**Q: 如何取消选择模式？**  
 A: 按 ESC 键即可退出选择模式。
 
 ## 🤝 贡献指南
@@ -267,10 +175,6 @@ A: 按 ESC 键即可退出选择模式。
 - 添加必要的注释
 - 支持多语言
 
-## 📄 许可证
-
-MIT License - 详见 LICENSE 文件
-
 ## 🔗 相关链接
 
 - [Chrome 扩展开发文档](https://developer.chrome.com/docs/extensions/)
@@ -280,6 +184,5 @@ MIT License - 详见 LICENSE 文件
 
 ---
 
-**享受便捷的元素截图体验！** 🎉
-
+**享受便捷的元素截图体验！** 🎉  
 > 如果您觉得这个插件有用，请给个 ⭐ Star 支持一下！
