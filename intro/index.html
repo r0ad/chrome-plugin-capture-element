@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome 元素截图插件 - 精确截图，多语言支持</title>
+    <meta name="description" content="功能强大的Chrome浏览器扩展，支持多种截图模式，提供精确的元素选择和多语言界面。支持SnapDOM、HTML2Canvas和原生模式。">
+    <meta name="keywords" content="Chrome扩展,元素截图,网页截图,浏览器插件,多语言">
+    
+    <!-- Tailwind CSS 4 CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.6s ease-out',
+                        'bounce-gentle': 'bounceGentle 2s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        bounceGentle: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .screenshot-mode {
+            transition: all 0.3s ease;
+        }
+        .screenshot-mode:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app">
+        <!-- Header -->
+        <header class="gradient-bg text-white py-16">
+            <div class="container mx-auto px-6 text-center">
+                <div class="animate-fade-in">
+                    <img src="icons/icon128.png" alt="Chrome 元素截图插件" class="w-24 h-24 mx-auto mb-6 animate-bounce-gentle">
+                    <h1 class="text-5xl font-bold mb-4">Chrome 元素截图插件</h1>
+                    <p class="text-xl mb-8 max-w-2xl mx-auto">功能强大的Chrome浏览器扩展，支持多种截图模式，提供精确的元素选择和多语言界面</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="https://github.com/r0ad/chrome-plugin-capture-element/releases/latest" 
+                           class="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center gap-2">
+                            <i class="fas fa-download"></i>
+                            立即下载
+                        </a>
+                        <a href="https://github.com/r0ad/chrome-plugin-capture-element" 
+                           class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors inline-flex items-center gap-2">
+                            <i class="fab fa-github"></i>
+                            GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Features Section -->
+        <section class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 animate-slide-up">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-4">核心功能</h2>
+                    <p class="text-xl text-gray-600">多种截图模式，智能元素选择，多语言支持</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- 多种截图模式 -->
+                    <div class="feature-card bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-xl">
+                        <div class="text-4xl text-blue-600 mb-4">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">多种截图模式</h3>
+                        <ul class="text-gray-600 space-y-2">
+                            <li>• SnapDOM模式 - 高性能</li>
+                            <li>• HTML2Canvas模式 - 兼容性好</li>
+                            <li>• 原生模式 - 速度快</li>
+                        </ul>
+                    </div>
+
+                    <!-- 智能元素选择 -->
+                    <div class="feature-card bg-gradient-to-br from-green-50 to-emerald-100 p-6 rounded-xl">
+                        <div class="text-4xl text-green-600 mb-4">
+                            <i class="fas fa-crosshairs"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">智能元素选择</h3>
+                        <ul class="text-gray-600 space-y-2">
+                            <li>• 悬停高亮预览</li>
+                            <li>• 滚轮切换层级</li>
+                            <li>• 一键截图保存</li>
+                        </ul>
+                    </div>
+
+                    <!-- 多语言支持 -->
+                    <div class="feature-card bg-gradient-to-br from-purple-50 to-violet-100 p-6 rounded-xl">
+                        <div class="text-4xl text-purple-600 mb-4">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">多语言支持</h3>
+                        <div class="text-gray-600">
+                            <p class="mb-2">支持11种语言：</p>
+                            <div class="flex flex-wrap gap-1 text-sm">
+                                <span class="bg-white px-2 py-1 rounded">🇨🇳 中文</span>
+                                <span class="bg-white px-2 py-1 rounded">🇺🇸 EN</span>
+                                <span class="bg-white px-2 py-1 rounded">🇯🇵 JP</span>
+                                <span class="bg-white px-2 py-1 rounded">🇰🇷 KR</span>
+                                <span class="bg-white px-2 py-1 rounded">+7</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 多种操作方式 -->
+                    <div class="feature-card bg-gradient-to-br from-orange-50 to-red-100 p-6 rounded-xl">
+                        <div class="text-4xl text-orange-600 mb-4">
+                            <i class="fas fa-mouse-pointer"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">多种操作方式</h3>
+                        <ul class="text-gray-600 space-y-2">
+                            <li>• 插件图标点击</li>
+                            <li>• 设置界面操作</li>
+                            <li>• 右键菜单访问</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Screenshot Modes Comparison -->
+        <section class="py-20 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-4">截图模式对比</h2>
+                    <p class="text-xl text-gray-600">选择最适合您需求的截图模式</p>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- SnapDOM Mode -->
+                    <div class="screenshot-mode bg-white p-8 rounded-xl shadow-lg">
+                        <div class="text-center mb-6">
+                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-bolt text-2xl text-blue-600"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800">SnapDOM模式</h3>
+                            <p class="text-blue-600 font-semibold">推荐使用</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">性能</span>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">兼容性</span>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">SVG支持</span>
+                                <span class="text-green-600 font-semibold">✅ 支持</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                            <p class="text-sm text-blue-800">适合高性能需求和SVG元素截图</p>
+                        </div>
+                    </div>
+
+                    <!-- HTML2Canvas Mode -->
+                    <div class="screenshot-mode bg-white p-8 rounded-xl shadow-lg">
+                        <div class="text-center mb-6">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-palette text-2xl text-green-600"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800">HTML2Canvas模式</h3>
+                            <p class="text-green-600 font-semibold">兼容性最佳</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">性能</span>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">兼容性</span>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">SVG支持</span>
+                                <span class="text-red-600 font-semibold">❌ 不支持</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 p-4 bg-green-50 rounded-lg">
+                            <p class="text-sm text-green-800">适合复杂样式和兼容性要求高的场景</p>
+                        </div>
+                    </div>
+
+                    <!-- Native Mode -->
+                    <div class="screenshot-mode bg-white p-8 rounded-xl shadow-lg">
+                        <div class="text-center mb-6">
+                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-rocket text-2xl text-purple-600"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800">原生模式</h3>
+                            <p class="text-purple-600 font-semibold">速度最快</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">性能</span>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">兼容性</span>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">SVG支持</span>
+                                <span class="text-red-600 font-semibold">❌ 不支持</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 p-4 bg-purple-50 rounded-lg">
+                            <p class="text-sm text-purple-800">适合简单快速的截图需求</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Installation Guide -->
+        <section class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-4">快速开始</h2>
+                    <p class="text-xl text-gray-600">简单几步即可开始使用</p>
+                </div>
+                
+                <div class="max-w-4xl mx-auto">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <!-- Installation Steps -->
+                        <div class="bg-gray-50 p-8 rounded-xl">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-download text-blue-600 mr-3"></i>
+                                安装方法
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">1</div>
+                                    <p class="text-gray-700">打开Chrome浏览器，访问 <code class="bg-gray-200 px-2 py-1 rounded">chrome://extensions/</code></p>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">2</div>
+                                    <p class="text-gray-700">开启右上角的「开发者模式」</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">3</div>
+                                    <p class="text-gray-700">点击「加载已解压的扩展程序」</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">4</div>
+                                    <p class="text-gray-700">选择插件文件夹，安装完成</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Usage Methods -->
+                        <div class="bg-gray-50 p-8 rounded-xl">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-play text-green-600 mr-3"></i>
+                                使用方法
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">1</div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">直接点击图标</p>
+                                        <p class="text-gray-600 text-sm">点击工具栏图标 → 悬停选择元素 → 点击截图</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">2</div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">设置界面操作</p>
+                                        <p class="text-gray-600 text-sm">点击图标打开设置 → 选择模式 → 开始截图</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">3</div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">右键菜单</p>
+                                        <p class="text-gray-600 text-sm">右键菜单 → 「元素截图工具」→ 开始截图</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Showcase -->
+        <section class="py-20 bg-gradient-to-r from-blue-50 to-indigo-100">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-4">功能特色</h2>
+                    <p class="text-xl text-gray-600">体验强大的元素截图功能</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                        <div class="text-4xl text-blue-600 mb-4">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">悬停高亮</h3>
+                        <p class="text-gray-600">鼠标悬停时实时高亮显示页面元素，精确预览截图区域</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                        <div class="text-4xl text-green-600 mb-4">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">层级切换</h3>
+                        <p class="text-gray-600">使用滚轮切换元素层级，精确定位目标元素</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                        <div class="text-4xl text-purple-600 mb-4">
+                            <i class="fas fa-save"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">自动保存</h3>
+                        <p class="text-gray-600">截图自动保存到浏览器默认下载文件夹</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                        <div class="text-4xl text-orange-600 mb-4">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">多语言界面</h3>
+                        <p class="text-gray-600">支持11种语言，包括中文、英文、日文、韩文等</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                        <div class="text-4xl text-red-600 mb-4">
+                            <i class="fas fa-mouse"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">多种操作</h3>
+                        <p class="text-gray-600">支持插件图标、设置界面、右键菜单多种操作方式</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                        <div class="text-4xl text-indigo-600 mb-4">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">灵活配置</h3>
+                        <p class="text-gray-600">可根据需求选择不同的截图模式和配置选项</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Section -->
+        <section class="py-20 bg-gray-900 text-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-4xl font-bold mb-6">立即开始使用</h2>
+                <p class="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">下载Chrome元素截图插件，体验强大的元素截图功能</p>
+                
+                <div class="flex flex-col sm:flex-row gap-6 justify-center mb-12">
+                    <a href="https://github.com/r0ad/chrome-plugin-capture-element/releases/latest" 
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors inline-flex items-center gap-3">
+                        <i class="fas fa-download"></i>
+                        下载最新版本
+                    </a>
+                    <a href="https://github.com/r0ad/chrome-plugin-capture-element" 
+                       class="border-2 border-gray-600 hover:border-white text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors inline-flex items-center gap-3">
+                        <i class="fab fa-github"></i>
+                        查看源代码
+                    </a>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-blue-400 mb-2">11+</div>
+                        <p class="text-gray-300">支持语言</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-400 mb-2">3</div>
+                        <p class="text-gray-300">截图模式</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-purple-400 mb-2">100%</div>
+                        <p class="text-gray-300">免费开源</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-12">
+            <div class="container mx-auto px-6">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Chrome 元素截图插件</h3>
+                        <p class="text-gray-300 mb-4">功能强大的Chrome浏览器扩展，支持多种截图模式，提供精确的元素选择和多语言界面。</p>
+                        <div class="flex space-x-4">
+                            <a href="https://github.com/r0ad/chrome-plugin-capture-element" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fab fa-github text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4">快速链接</h4>
+                        <ul class="space-y-2">
+                            <li><a href="https://github.com/r0ad/chrome-plugin-capture-element/releases" class="text-gray-300 hover:text-white transition-colors">下载页面</a></li>
+                            <li><a href="https://github.com/r0ad/chrome-plugin-capture-element/issues" class="text-gray-300 hover:text-white transition-colors">问题反馈</a></li>
+                            <li><a href="https://github.com/r0ad/chrome-plugin-capture-element/wiki" class="text-gray-300 hover:text-white transition-colors">使用文档</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4">技术信息</h4>
+                        <ul class="space-y-2 text-gray-300">
+                            <li>Manifest V3</li>
+                            <li>Vue 3 + Tailwind CSS</li>
+                            <li>MIT License</li>
+                            <li>Chrome 88+</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                    <p>&copy; 2025 Chrome 元素截图插件. 基于 MIT 许可证开源.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    currentMode: 'snapdom',
+                    features: [
+                        {
+                            icon: 'fas fa-camera',
+                            title: '多种截图模式',
+                            description: '支持SnapDOM、HTML2Canvas和原生模式',
+                            color: 'blue'
+                        },
+                        {
+                            icon: 'fas fa-crosshairs',
+                            title: '智能元素选择',
+                            description: '悬停高亮、层级切换、一键截图',
+                            color: 'green'
+                        },
+                        {
+                            icon: 'fas fa-globe',
+                            title: '多语言支持',
+                            description: '支持11种语言界面',
+                            color: 'purple'
+                        }
+                    ]
+                }
+            },
+            methods: {
+                scrollToSection(sectionId) {
+                    document.getElementById(sectionId).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            },
+            mounted() {
+                // 添加滚动动画效果
+                const observerOptions = {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                };
+                
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('animate-slide-up');
+                        }
+                    });
+                }, observerOptions);
+                
+                document.querySelectorAll('.feature-card, .screenshot-mode').forEach(el => {
+                    observer.observe(el);
+                });
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
