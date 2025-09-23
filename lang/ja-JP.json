@@ -1,0 +1,87 @@
+{
+  "app": {
+    "title": "要素スクリーンショットツール",
+    "name": "要素スクリーンショットキャプチャ",
+    "settings": "設定"
+  },
+  "status": {
+    "currentMode": "現在のデフォルトモード",
+    "ready": "準備完了",
+    "loading": "読み込み中...",
+    "capturing": "キャプチャ中...",
+    "success": "キャプチャ成功",
+    "error": "キャプチャ失敗"
+  },
+  "modes": {
+    "snapdom": "SnapDOM",
+    "html2canvas": "HTML2Canvas",
+    "native": "ネイティブモード",
+    "snapdomDesc": "高性能、SVGレンダリング対応",
+    "html2canvasDesc": "互換性良好、複雑なスタイル対応",
+    "nativeDesc": "Chrome API使用、高速",
+    "recommended": "推奨"
+  },
+  "ui": {
+    "defaultCaptureMode": "デフォルトキャプチャモード",
+    "defaultCaptureModeDesc": "プラグインアイコンをクリックした時のデフォルトキャプチャ方法を選択",
+    "startCapture": "キャプチャ開始",
+    "stopCapture": "キャプチャ停止",
+    "language": "言語",
+    "chinese": "中文",
+    "english": "English",
+    "japanese": "日本語",
+    "korean": "한국어",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "russian": "Русский",
+    "portuguese": "Português",
+    "italian": "Italiano"
+  },
+  "instructions": {
+    "title": "使用方法",
+    "steps": [
+      "キャプチャモードを選択（ネイティブ/HTML2Canvas/SnapDOM）",
+      "「キャプチャ開始」ボタンをクリック",
+      "キャプチャしたい要素にマウスをホバー",
+      "選択した要素をクリックしてキャプチャ",
+      "スクリーンショットは自動的にダウンロードフォルダに保存されます",
+      "ESCキーで選択をキャンセルできます"
+    ],
+    "modeDescription": "モード説明：",
+    "modeDetails": [
+      "• ネイティブモード：Chrome API使用、高速",
+      "• HTML2Canvas：互換性良好、複雑なスタイル対応",
+      "• SnapDOM：高性能、SVGレンダリング対応"
+    ]
+  },
+  "tips": {
+    "clickIcon": "プラグインアイコンをクリックして直接キャプチャ開始",
+    "rightClickMenu": "右クリックメニューにも「キャプチャ設定」オプションがあります"
+  },
+  "messages": {
+    "selectElement": "🎯 ホバーで要素選択、スクロールでレベル切り替え、クリックでキャプチャ、ESCでキャンセル",
+    "capturing": "📸 要素をキャプチャ中...",
+    "capturingWithMode": "📸 要素をキャプチャ中... ({mode})",
+    "success": "✅ スクリーンショット保存完了: {filename}",
+    "error": "❌ キャプチャ失敗: {error}",
+    "cancelled": "要素選択をキャンセルしました",
+    "elementInfo": "📍 {elementDesc}",
+    "levelInfo": "レベル: {current}/{total} | スクロールで切り替え",
+    "sizeInfo": "{width}×{height}px",
+    "hoverTip": "💡 緑のハイライト=ホバープレビュー | 赤のハイライト=選択済み",
+    "snapdomFailed": "❌ SnapDOMライブラリが読み込まれていません",
+    "html2canvasFailed": "❌ HTML2Canvasライブラリが読み込まれていません",
+    "connectionFailed": "❌ 接続失敗: {error}",
+    "downloadFailed": "❌ ダウンロード失敗: {error}",
+    "sendMessageFailed": "❌ メッセージ送信失敗: {error}",
+    "processingFailed": "❌ スクリーンショット処理失敗",
+    "fallbackToHtml2Canvas": "🔄 SnapDOM失敗、HTML2Canvasモードに切り替え中...",
+    "fallbackToCompatible": "🔄 ネイティブモード失敗、互換モードに自動切り替え中...",
+    "elementTooLarge": "⚠️ 要素が大きすぎます、キャプチャが不完全になる可能性があります"
+  },
+  "contextMenu": {
+    "startElementCapture": "要素キャプチャ開始",
+    "captureSettings": "キャプチャ設定"
+  }
+}

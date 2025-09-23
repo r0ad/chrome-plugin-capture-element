@@ -1,0 +1,87 @@
+{
+  "app": {
+    "title": "요소 스크린샷 도구",
+    "name": "요소 스크린샷 캡처",
+    "settings": "설정"
+  },
+  "status": {
+    "currentMode": "현재 기본 모드",
+    "ready": "준비 완료",
+    "loading": "로딩 중...",
+    "capturing": "캡처 중...",
+    "success": "캡처 성공",
+    "error": "캡처 실패"
+  },
+  "modes": {
+    "snapdom": "SnapDOM",
+    "html2canvas": "HTML2Canvas",
+    "native": "네이티브 모드",
+    "snapdomDesc": "고성능, SVG 렌더링 지원",
+    "html2canvasDesc": "호환성 우수, 복잡한 스타일 지원",
+    "nativeDesc": "Chrome API 사용, 빠름",
+    "recommended": "추천"
+  },
+  "ui": {
+    "defaultCaptureMode": "기본 캡처 모드",
+    "defaultCaptureModeDesc": "플러그인 아이콘 클릭 시 기본 캡처 방법 선택",
+    "startCapture": "캡처 시작",
+    "stopCapture": "캡처 중지",
+    "language": "언어",
+    "chinese": "中文",
+    "english": "English",
+    "japanese": "日本語",
+    "korean": "한국어",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "russian": "Русский",
+    "portuguese": "Português",
+    "italian": "Italiano"
+  },
+  "instructions": {
+    "title": "사용 방법",
+    "steps": [
+      "캡처 모드 선택 (네이티브/HTML2Canvas/SnapDOM)",
+      "'캡처 시작' 버튼 클릭",
+      "캡처할 요소에 마우스 호버",
+      "선택한 요소 클릭하여 캡처",
+      "스크린샷이 자동으로 다운로드 폴더에 저장됩니다",
+      "ESC 키로 선택 취소 가능"
+    ],
+    "modeDescription": "모드 설명:",
+    "modeDetails": [
+      "• 네이티브 모드: Chrome API 사용, 빠름",
+      "• HTML2Canvas: 호환성 우수, 복잡한 스타일 지원",
+      "• SnapDOM: 고성능, SVG 렌더링 지원"
+    ]
+  },
+  "tips": {
+    "clickIcon": "플러그인 아이콘 클릭으로 직접 캡처 시작",
+    "rightClickMenu": "우클릭 메뉴에도 '캡처 설정' 옵션이 있습니다"
+  },
+  "messages": {
+    "selectElement": "🎯 호버로 요소 선택, 스크롤로 레벨 전환, 클릭으로 캡처, ESC로 취소",
+    "capturing": "📸 요소 캡처 중...",
+    "capturingWithMode": "📸 요소 캡처 중... ({mode})",
+    "success": "✅ 스크린샷 저장 완료: {filename}",
+    "error": "❌ 캡처 실패: {error}",
+    "cancelled": "요소 선택 취소됨",
+    "elementInfo": "📍 {elementDesc}",
+    "levelInfo": "레벨: {current}/{total} | 스크롤로 전환",
+    "sizeInfo": "{width}×{height}px",
+    "hoverTip": "💡 녹색 하이라이트=호버 미리보기 | 빨간색 하이라이트=선택됨",
+    "snapdomFailed": "❌ SnapDOM 라이브러리 로드되지 않음",
+    "html2canvasFailed": "❌ HTML2Canvas 라이브러리 로드되지 않음",
+    "connectionFailed": "❌ 연결 실패: {error}",
+    "downloadFailed": "❌ 다운로드 실패: {error}",
+    "sendMessageFailed": "❌ 메시지 전송 실패: {error}",
+    "processingFailed": "❌ 스크린샷 처리 실패",
+    "fallbackToHtml2Canvas": "🔄 SnapDOM 실패, HTML2Canvas 모드로 전환 중...",
+    "fallbackToCompatible": "🔄 네이티브 모드 실패, 호환 모드로 자동 전환 중...",
+    "elementTooLarge": "⚠️ 요소가 너무 큼, 캡처가 불완전할 수 있음"
+  },
+  "contextMenu": {
+    "startElementCapture": "요소 캡처 시작",
+    "captureSettings": "캡처 설정"
+  }
+}

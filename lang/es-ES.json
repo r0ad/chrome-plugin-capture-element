@@ -1,0 +1,87 @@
+{
+  "app": {
+    "title": "Herramienta de Captura de Elementos",
+    "name": "Captura de Pantalla de Elementos",
+    "settings": "Configuración"
+  },
+  "status": {
+    "currentMode": "Modo Predeterminado Actual",
+    "ready": "Listo",
+    "loading": "Cargando...",
+    "capturing": "Capturando...",
+    "success": "Captura Exitosa",
+    "error": "Captura Fallida"
+  },
+  "modes": {
+    "snapdom": "SnapDOM",
+    "html2canvas": "HTML2Canvas",
+    "native": "Modo Nativo",
+    "snapdomDesc": "Alto rendimiento, soporte para renderizado SVG",
+    "html2canvasDesc": "Buena compatibilidad, soporte para estilos complejos",
+    "nativeDesc": "Usa Chrome API, rápido",
+    "recommended": "Recomendado"
+  },
+  "ui": {
+    "defaultCaptureMode": "Modo de Captura Predeterminado",
+    "defaultCaptureModeDesc": "Selecciona el método de captura predeterminado al hacer clic en el icono del plugin",
+    "startCapture": "Iniciar Captura",
+    "stopCapture": "Detener Captura",
+    "language": "Idioma",
+    "chinese": "中文",
+    "english": "English",
+    "japanese": "日本語",
+    "korean": "한국어",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "russian": "Русский",
+    "portuguese": "Português",
+    "italian": "Italiano"
+  },
+  "instructions": {
+    "title": "Instrucciones de Uso",
+    "steps": [
+      "Selecciona el modo de captura (Nativo/HTML2Canvas/SnapDOM)",
+      "Haz clic en el botón 'Iniciar Captura'",
+      "Pasa el mouse sobre el elemento que quieres capturar",
+      "Haz clic en el elemento seleccionado para capturar",
+      "La captura se guardará automáticamente en la carpeta de descargas",
+      "Presiona ESC para cancelar la selección"
+    ],
+    "modeDescription": "Descripción del Modo:",
+    "modeDetails": [
+      "• Modo Nativo: Usa Chrome API, rápido",
+      "• HTML2Canvas: Buena compatibilidad, soporte para estilos complejos",
+      "• SnapDOM: Alto rendimiento, soporte para renderizado SVG"
+    ]
+  },
+  "tips": {
+    "clickIcon": "Haz clic en el icono del plugin para iniciar la captura directamente",
+    "rightClickMenu": "El menú contextual también tiene la opción 'Configuración de Captura'"
+  },
+  "messages": {
+    "selectElement": "🎯 Pasa el mouse para seleccionar elemento, rueda para cambiar nivel, clic para capturar, ESC para cancelar",
+    "capturing": "📸 Capturando elemento...",
+    "capturingWithMode": "📸 Capturando elemento... ({mode})",
+    "success": "✅ Captura guardada: {filename}",
+    "error": "❌ Captura fallida: {error}",
+    "cancelled": "Selección de elemento cancelada",
+    "elementInfo": "📍 {elementDesc}",
+    "levelInfo": "Nivel: {current}/{total} | Rueda para cambiar",
+    "sizeInfo": "{width}×{height}px",
+    "hoverTip": "💡 Resaltado verde=previsualización al pasar | Resaltado rojo=seleccionado",
+    "snapdomFailed": "❌ Biblioteca SnapDOM no cargada",
+    "html2canvasFailed": "❌ Biblioteca HTML2Canvas no cargada",
+    "connectionFailed": "❌ Conexión fallida: {error}",
+    "downloadFailed": "❌ Descarga fallida: {error}",
+    "sendMessageFailed": "❌ Envío de mensaje fallido: {error}",
+    "processingFailed": "❌ Procesamiento de captura fallido",
+    "fallbackToHtml2Canvas": "🔄 SnapDOM falló, cambiando a modo HTML2Canvas...",
+    "fallbackToCompatible": "🔄 Modo nativo falló, cambiando automáticamente a modo compatible...",
+    "elementTooLarge": "⚠️ Elemento demasiado grande, la captura puede estar incompleta"
+  },
+  "contextMenu": {
+    "startElementCapture": "Iniciar Captura de Elemento",
+    "captureSettings": "Configuración de Captura"
+  }
+}

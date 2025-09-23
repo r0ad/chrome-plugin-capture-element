@@ -94,7 +94,15 @@ class LanguageManager {
   getSupportedLanguages() {
     return [
       { code: 'zh-CN', name: '中文' },
-      { code: 'en-US', name: 'English' }
+      { code: 'en-US', name: 'English' },
+      { code: 'ja-JP', name: '日本語' },
+      { code: 'ko-KR', name: '한국어' },
+      { code: 'es-ES', name: 'Español' },
+      { code: 'fr-FR', name: 'Français' },
+      { code: 'de-DE', name: 'Deutsch' },
+      { code: 'ru-RU', name: 'Русский' },
+      { code: 'pt-BR', name: 'Português' },
+      { code: 'it-IT', name: 'Italiano' }
     ];
   }
 }

@@ -1,0 +1,87 @@
+{
+  "app": {
+    "title": "Element-Screenshot-Tool",
+    "name": "Element-Screenshot-Erfassung",
+    "settings": "Einstellungen"
+  },
+  "status": {
+    "currentMode": "Aktueller Standardmodus",
+    "ready": "Bereit",
+    "loading": "Laden...",
+    "capturing": "Erfassen...",
+    "success": "Erfassung Erfolgreich",
+    "error": "Erfassung Fehlgeschlagen"
+  },
+  "modes": {
+    "snapdom": "SnapDOM",
+    "html2canvas": "HTML2Canvas",
+    "native": "Nativmodus",
+    "snapdomDesc": "Hohe Leistung, SVG-Rendering-Unterstützung",
+    "html2canvasDesc": "Gute Kompatibilität, Unterstützung für komplexe Styles",
+    "nativeDesc": "Verwendet Chrome API, schnell",
+    "recommended": "Empfohlen"
+  },
+  "ui": {
+    "defaultCaptureMode": "Standard-Erfassungsmodus",
+    "defaultCaptureModeDesc": "Wählen Sie die Standard-Erfassungsmethode beim Klicken auf das Plugin-Symbol",
+    "startCapture": "Erfassung Starten",
+    "stopCapture": "Erfassung Stoppen",
+    "language": "Sprache",
+    "chinese": "中文",
+    "english": "English",
+    "japanese": "日本語",
+    "korean": "한국어",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "russian": "Русский",
+    "portuguese": "Português",
+    "italian": "Italiano"
+  },
+  "instructions": {
+    "title": "Anweisungen",
+    "steps": [
+      "Erfassungsmodus wählen (Nativ/HTML2Canvas/SnapDOM)",
+      "Auf 'Erfassung Starten' klicken",
+      "Mit der Maus über das zu erfassende Element fahren",
+      "Auf das ausgewählte Element klicken, um zu erfassen",
+      "Screenshot wird automatisch im Download-Ordner gespeichert",
+      "ESC-Taste drücken, um die Auswahl abzubrechen"
+    ],
+    "modeDescription": "Modus-Beschreibung:",
+    "modeDetails": [
+      "• Nativmodus: Verwendet Chrome API, schnell",
+      "• HTML2Canvas: Gute Kompatibilität, Unterstützung für komplexe Styles",
+      "• SnapDOM: Hohe Leistung, SVG-Rendering-Unterstützung"
+    ]
+  },
+  "tips": {
+    "clickIcon": "Plugin-Symbol klicken, um direkt mit der Erfassung zu beginnen",
+    "rightClickMenu": "Rechtsklick-Menü hat auch 'Erfassungseinstellungen' Option"
+  },
+  "messages": {
+    "selectElement": "🎯 Überfahren zum Auswählen, Scrollen zum Wechseln der Ebene, Klicken zum Erfassen, ESC zum Abbrechen",
+    "capturing": "📸 Element wird erfasst...",
+    "capturingWithMode": "📸 Element wird erfasst... ({mode})",
+    "success": "✅ Screenshot gespeichert: {filename}",
+    "error": "❌ Erfassung fehlgeschlagen: {error}",
+    "cancelled": "Elementauswahl abgebrochen",
+    "elementInfo": "📍 {elementDesc}",
+    "levelInfo": "Ebene: {current}/{total} | Scrollen zum Wechseln",
+    "sizeInfo": "{width}×{height}px",
+    "hoverTip": "💡 Grüne Hervorhebung=Hover-Vorschau | Rote Hervorhebung=ausgewählt",
+    "snapdomFailed": "❌ SnapDOM-Bibliothek nicht geladen",
+    "html2canvasFailed": "❌ HTML2Canvas-Bibliothek nicht geladen",
+    "connectionFailed": "❌ Verbindung fehlgeschlagen: {error}",
+    "downloadFailed": "❌ Download fehlgeschlagen: {error}",
+    "sendMessageFailed": "❌ Nachricht senden fehlgeschlagen: {error}",
+    "processingFailed": "❌ Screenshot-Verarbeitung fehlgeschlagen",
+    "fallbackToHtml2Canvas": "🔄 SnapDOM fehlgeschlagen, wechsle zu HTML2Canvas-Modus...",
+    "fallbackToCompatible": "🔄 Nativmodus fehlgeschlagen, wechsle automatisch zu kompatiblem Modus...",
+    "elementTooLarge": "⚠️ Element zu groß, Erfassung möglicherweise unvollständig"
+  },
+  "contextMenu": {
+    "startElementCapture": "Element-Erfassung Starten",
+    "captureSettings": "Erfassungseinstellungen"
+  }
+}

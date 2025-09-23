@@ -30,6 +30,8 @@ class PopupController {
     // 语言切换事件
     if (this.languageSelect) {
       this.languageSelect.addEventListener('change', this.handleLanguageChange.bind(this));
+      // 动态生成语言选项
+      this.populateLanguageOptions();
     }
     
     // 为模式卡片添加点击事件
@@ -79,6 +81,28 @@ class PopupController {
     } else {
       console.error('语言管理器初始化失败');
     }
+  }
+
+  // 动态生成语言选项
+  populateLanguageOptions() {
+    if (!this.languageManager || !this.languageSelect) return;
+    
+    // 清空现有选项
+    this.languageSelect.innerHTML = '';
+    
+    // 获取支持的语言列表
+    const languages = this.languageManager.getSupportedLanguages();
+    
+    // 生成选项
+    languages.forEach(lang => {
+      const option = document.createElement('option');
+      option.value = lang.code;
+      option.textContent = lang.name;
+      this.languageSelect.appendChild(option);
+    });
+    
+    // 设置当前语言
+    this.languageSelect.value = this.languageManager.getCurrentLanguage();
   }
 
   // 处理语言切换
