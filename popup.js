@@ -2,16 +2,21 @@
 class PopupController {
   constructor() {
     this.isCapturing = false;
+    this.languageManager = null;
     this.init();
   }
 
-  init() {
+  async init() {
+    // 等待语言管理器初始化
+    await this.initLanguageManager();
+    
     // 获取DOM元素
     this.startCaptureBtn = document.getElementById('startCapture');
     this.statusElement = document.getElementById('status');
     this.modeRadios = document.querySelectorAll('input[name="captureMode"]');
     this.defaultModeRadios = document.querySelectorAll('input[name="defaultCaptureMode"]');
     this.currentModeSpan = document.getElementById('currentMode');
+    this.languageSelect = document.getElementById('languageSelect');
     
     // 绑定事件
     this.startCaptureBtn.addEventListener('click', this.handleStartCapture.bind(this));
@@ -21,6 +26,11 @@ class PopupController {
     this.defaultModeRadios.forEach(radio => {
       radio.addEventListener('change', this.handleDefaultModeChange.bind(this));
     });
+    
+    // 语言切换事件
+    if (this.languageSelect) {
+      this.languageSelect.addEventListener('change', this.handleLanguageChange.bind(this));
+    }
     
     // 为模式卡片添加点击事件
     document.querySelectorAll('.mode-card').forEach(card => {
@@ -34,10 +44,111 @@ class PopupController {
     });
     
     // 加载配置
-    this.loadConfig();
+    await this.loadConfig();
+    
+    // 应用翻译
+    this.applyTranslations();
     
     // 检查当前标签页状态
     this.checkCurrentTabStatus();
+  }
+
+  // 初始化语言管理器
+  async initLanguageManager() {
+    // 等待语言管理器加载
+    let attempts = 0;
+    while (!window.languageManager && attempts < 50) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
+    }
+    
+    if (window.languageManager) {
+      this.languageManager = window.languageManager;
+      
+      // 等待语言管理器完全初始化
+      while (!this.languageManager.initialized && attempts < 100) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        attempts++;
+      }
+      
+      if (this.languageManager.initialized) {
+        console.log('语言管理器初始化成功');
+      } else {
+        console.error('语言管理器初始化超时');
+      }
+    } else {
+      console.error('语言管理器初始化失败');
+    }
+  }
+
+  // 处理语言切换
+  async handleLanguageChange(event) {
+    const selectedLanguage = event.target.value;
+    console.log('语言切换为:', selectedLanguage);
+    
+    if (this.languageManager) {
+      const success = await this.languageManager.setLanguage(selectedLanguage);
+      if (success) {
+        this.applyTranslations();
+        
+        // 通知background script更新右键菜单
+        try {
+          await chrome.runtime.sendMessage({
+            action: 'updateContextMenus',
+            language: selectedLanguage
+          });
+          console.log('右键菜单更新成功');
+        } catch (error) {
+          console.error('更新右键菜单失败:', error);
+        }
+        
+        console.log('语言切换成功');
+      } else {
+        console.error('语言切换失败');
+        // 恢复原来的选择
+        event.target.value = this.languageManager.getCurrentLanguage();
+      }
+    }
+  }
+
+  // 应用翻译
+  applyTranslations() {
+    if (!this.languageManager) return;
+    
+    // 翻译所有带有data-i18n属性的元素
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      const text = this.languageManager.t(key);
+      if (text && text !== key) {
+        element.textContent = text;
+      }
+    });
+    
+    // 特殊处理列表项
+    const instructionSteps = document.getElementById('instructionSteps');
+    if (instructionSteps) {
+      const steps = this.languageManager.t('instructions.steps');
+      if (Array.isArray(steps)) {
+        instructionSteps.innerHTML = steps.map(step => `<li>${step}</li>`).join('');
+      }
+    }
+    
+    // 特殊处理模式说明
+    const modeDetails = document.getElementById('modeDetails');
+    if (modeDetails) {
+      const details = this.languageManager.t('instructions.modeDetails');
+      if (Array.isArray(details)) {
+        modeDetails.innerHTML = details.map(detail => `• ${detail}<br>`).join('');
+      }
+    }
+    
+    // 更新语言选择器
+    if (this.languageSelect) {
+      this.languageSelect.value = this.languageManager.getCurrentLanguage();
+    }
+    
+    // 更新当前模式显示
+    this.updateCurrentModeDisplay();
   }
   
   handleModeChange(event) {
@@ -102,10 +213,12 @@ class PopupController {
 
   // 更新当前模式显示
   updateCurrentModeDisplay(mode) {
+    if (!this.languageManager) return;
+    
     const modeNames = {
-      'native': '原生模式',
-      'html2canvas': 'HTML2Canvas',
-      'snapdom': 'SnapDOM'
+      'native': this.languageManager.t('modes.native'),
+      'html2canvas': this.languageManager.t('modes.html2canvas'),
+      'snapdom': this.languageManager.t('modes.snapdom')
     };
     
     if (this.currentModeSpan) {
@@ -254,12 +367,17 @@ class PopupController {
   }
 
   updateCaptureButton() {
+    if (!this.languageManager) return;
+    
+    const startText = this.languageManager.t('ui.startCapture');
+    const stopText = this.languageManager.t('ui.stopCapture');
+    
     if (this.isCapturing) {
       this.startCaptureBtn.innerHTML = `
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M6 6H18V18H6V6Z" fill="currentColor"/>
         </svg>
-        停止截图
+        <span>${stopText}</span>
       `;
       this.startCaptureBtn.classList.add('capturing');
     } else {
@@ -267,7 +385,7 @@ class PopupController {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor"/>
         </svg>
-        开始截图
+        <span>${startText}</span>
       `;
       this.startCaptureBtn.classList.remove('capturing');
     }

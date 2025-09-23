@@ -1,11 +1,16 @@
 // 元素截图插件 - 后台脚本
 class BackgroundService {
   constructor() {
+    this.translations = {};
+    this.currentLanguage = 'zh-CN';
     this.init();
   }
 
-  init() {
+  async init() {
     console.log('BackgroundService 初始化中...');
+    
+    // 初始化语言管理器
+    await this.initLanguageManager();
     
     // 监听来自content script的消息
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -33,6 +38,18 @@ class BackgroundService {
             sendResponse({ success: false, error: error.message });
           });
         return true; // 保持消息通道开放
+      } else if (request.action === 'updateContextMenus') {
+        // 处理语言切换时更新右键菜单
+        const language = request.language; // 获取传递的语言参数
+        this.updateContextMenus(language)
+          .then(() => {
+            sendResponse({ success: true });
+          })
+          .catch(error => {
+            console.error('更新右键菜单失败:', error);
+            sendResponse({ success: false, error: error.message });
+          });
+        return true; // 保持消息通道开放
       }
       
       // 如果不是已知的action，返回false
@@ -46,17 +63,10 @@ class BackgroundService {
     });
     
     // 创建右键菜单
-    chrome.contextMenus.create({
-      id: 'startElementCapture',
-      title: '开始元素截图',
-      contexts: ['page']
-    });
+    this.createContextMenus();
     
-    chrome.contextMenus.create({
-      id: 'captureSettings',
-      title: '截图设置',
-      contexts: ['page']
-    });
+    // 设置初始插件标题
+    this.updateActionTitle();
     
     // 监听右键菜单点击
     chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -70,6 +80,176 @@ class BackgroundService {
     });
     
     console.log('BackgroundService 初始化完成');
+  }
+
+  // 初始化语言管理器
+  async initLanguageManager() {
+    try {
+      // 从存储中获取用户设置的语言
+      const result = await chrome.storage.sync.get(['language']);
+      this.currentLanguage = result.language || 'zh-CN';
+      
+      // 加载语言文件
+      const response = await fetch(chrome.runtime.getURL(`lang/${this.currentLanguage}.json`));
+      if (response.ok) {
+        this.translations = await response.json();
+        console.log('语言加载成功:', this.currentLanguage);
+      } else {
+        console.error('语言文件加载失败:', this.currentLanguage);
+        // 使用默认中文
+        this.translations = await this.loadDefaultTranslations();
+        this.currentLanguage = 'zh-CN';
+      }
+    } catch (error) {
+      console.error('初始化语言管理器失败:', error);
+      // 使用默认中文
+      this.translations = await this.loadDefaultTranslations();
+      this.currentLanguage = 'zh-CN';
+    }
+  }
+
+  // 加载默认翻译（中文）
+  async loadDefaultTranslations() {
+    try {
+      const response = await fetch(chrome.runtime.getURL('lang/zh-CN.json'));
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (error) {
+      console.error('加载默认翻译失败:', error);
+    }
+    return {};
+  }
+
+  // 获取翻译文本
+  t(key, params = {}) {
+    if (!this.translations) return key;
+    
+    const keys = key.split('.');
+    let value = this.translations;
+    
+    for (const k of keys) {
+      if (value && typeof value === 'object' && k in value) {
+        value = value[k];
+      } else {
+        console.warn('翻译键不存在:', key);
+        return key; // 返回键名作为后备
+      }
+    }
+    
+    if (typeof value === 'string') {
+      // 替换参数
+      return value.replace(/\{(\w+)\}/g, (match, param) => {
+        return params[param] || match;
+      });
+    }
+    
+    return value || key;
+  }
+
+  // 创建右键菜单
+  createContextMenus() {
+    // 清除现有的右键菜单
+    chrome.contextMenus.removeAll(() => {
+      // 创建父菜单（插件名称）
+      chrome.contextMenus.create({
+        id: 'elementCaptureMain',
+        title: this.t('app.name'),
+        contexts: ['page']
+      });
+      
+      // 创建子菜单项
+      chrome.contextMenus.create({
+        id: 'startElementCapture',
+        parentId: 'elementCaptureMain',
+        title: this.t('contextMenu.startElementCapture'),
+        contexts: ['page']
+      });
+      
+      chrome.contextMenus.create({
+        id: 'captureSettings',
+        parentId: 'elementCaptureMain',
+        title: this.t('contextMenu.captureSettings'),
+        contexts: ['page']
+      });
+      
+      console.log('右键菜单创建完成');
+    });
+  }
+
+  // 更新右键菜单（语言切换时调用）
+  async updateContextMenus(language = null) {
+    try {
+      if (language) {
+        // 如果指定了语言，直接加载该语言
+        this.currentLanguage = language;
+        const response = await fetch(chrome.runtime.getURL(`lang/${language}.json`));
+        if (response.ok) {
+          this.translations = await response.json();
+          console.log('语言加载成功:', language);
+        } else {
+          console.error('语言文件加载失败:', language);
+          return;
+        }
+      } else {
+        // 重新加载当前语言设置
+        await this.initLanguageManager();
+      }
+      
+      // 更新右键菜单 - 使用删除重建的方式确保更新生效
+      const startTitle = this.t('contextMenu.startElementCapture');
+      const settingsTitle = this.t('contextMenu.captureSettings');
+      
+      console.log('准备更新右键菜单:');
+      console.log('- startElementCapture:', startTitle);
+      console.log('- captureSettings:', settingsTitle);
+      
+      // 先删除现有菜单
+      chrome.contextMenus.removeAll(() => {
+        // 重新创建菜单
+        const mainTitle = this.t('app.name');
+        
+        // 创建父菜单（插件名称）
+        chrome.contextMenus.create({
+          id: 'elementCaptureMain',
+          title: mainTitle,
+          contexts: ['page']
+        });
+        
+        // 创建子菜单项
+        chrome.contextMenus.create({
+          id: 'startElementCapture',
+          parentId: 'elementCaptureMain',
+          title: startTitle,
+          contexts: ['page']
+        });
+        
+        chrome.contextMenus.create({
+          id: 'captureSettings',
+          parentId: 'elementCaptureMain',
+          title: settingsTitle,
+          contexts: ['page']
+        });
+        
+        console.log('右键菜单已重新创建，当前语言:', this.currentLanguage);
+        
+        // 更新插件标题
+        this.updateActionTitle();
+      });
+    } catch (error) {
+      console.error('更新右键菜单失败:', error);
+    }
+  }
+
+  // 更新插件标题
+  updateActionTitle() {
+    try {
+      const title = this.t('app.name');
+      chrome.action.setTitle({ title: title });
+      console.log('插件标题已更新:', title);
+    } catch (error) {
+      console.error('更新插件标题失败:', error);
+    }
   }
 
   async handleElementCapture(captureData, tabId) {

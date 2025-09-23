@@ -14,6 +14,12 @@
           <path d="M9 2C8.45 2 8 2.45 8 3V4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4H16V3C16 2.45 15.55 2 15 2H9ZM12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="currentColor"/>
         </svg>
       </div>
+      <div class="language-selector">
+        <select id="languageSelect" class="language-select">
+          <option value="zh-CN">中文</option>
+          <option value="en-US">English</option>
+        </select>
+      </div>
     </div>
     
     <div class="content">
@@ -22,7 +28,7 @@
         <div class="status-card">
           <div class="status-icon">🎯</div>
           <div class="status-info">
-            <h4>当前默认模式</h4>
+            <h4 data-i18n="status.currentMode">当前默认模式</h4>
             <p class="current-mode" id="currentMode">SnapDOM</p>
           </div>
         </div>
@@ -31,8 +37,8 @@
       <!-- 配置选项区域 -->
       <div class="config-section">
         <div class="section-header">
-          <h3>⚙️ 默认截图模式</h3>
-          <p class="section-desc">选择点击插件图标时的默认截图方式</p>
+          <h3 data-i18n="ui.defaultCaptureMode">⚙️ 默认截图模式</h3>
+          <p class="section-desc" data-i18n="ui.defaultCaptureModeDesc">选择点击插件图标时的默认截图方式</p>
         </div>
         
         <div class="mode-grid">
@@ -45,9 +51,9 @@
                 </svg>
               </div>
               <div class="mode-details">
-                <h4>SnapDOM</h4>
-                <p>高性能，支持SVG渲染</p>
-                <span class="mode-badge recommended">推荐</span>
+                <h4 data-i18n="modes.snapdom">SnapDOM</h4>
+                <p data-i18n="modes.snapdomDesc">高性能，支持SVG渲染</p>
+                <span class="mode-badge recommended" data-i18n="modes.recommended">推荐</span>
               </div>
             </div>
           </label>
@@ -61,8 +67,8 @@
                 </svg>
               </div>
               <div class="mode-details">
-                <h4>HTML2Canvas</h4>
-                <p>兼容性好，支持复杂样式</p>
+                <h4 data-i18n="modes.html2canvas">HTML2Canvas</h4>
+                <p data-i18n="modes.html2canvasDesc">兼容性好，支持复杂样式</p>
               </div>
             </div>
           </label>
@@ -76,8 +82,8 @@
                 </svg>
               </div>
               <div class="mode-details">
-                <h4>原生模式</h4>
-                <p>使用Chrome API，速度快</p>
+                <h4 data-i18n="modes.native">原生模式</h4>
+                <p data-i18n="modes.nativeDesc">使用Chrome API，速度快</p>
               </div>
             </div>
           </label>
@@ -90,30 +96,30 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor"/>
           </svg>
-          开始截图
+          <span data-i18n="ui.startCapture">开始截图</span>
         </button>
         
         <div class="quick-tips">
           <div class="tip-item">
             <span class="tip-icon">💡</span>
-            <span class="tip-text">点击插件图标可直接开始截图</span>
+            <span class="tip-text" data-i18n="tips.clickIcon">点击插件图标可直接开始截图</span>
           </div>
           <div class="tip-item">
             <span class="tip-icon">⚙️</span>
-            <span class="tip-text">右键菜单中也有"截图设置"选项</span>
+            <span class="tip-text" data-i18n="tips.rightClickMenu">右键菜单中也有"截图设置"选项</span>
           </div>
         </div>
       </div>
       
       <div class="instructions">
         <div class="instructions-header" id="instructionsToggle">
-          <h3>使用说明</h3>
+          <h3 data-i18n="instructions.title">使用说明</h3>
           <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M7 10L12 15L17 10H7Z" fill="currentColor"/>
           </svg>
         </div>
         <div class="instructions-content" id="instructionsContent">
-          <ol>
+          <ol id="instructionSteps">
             <li>选择截图模式（原生/HTML2Canvas/SnapDOM）</li>
             <li>点击"开始截图"按钮</li>
             <li>将鼠标悬停在要截图的元素上</li>
@@ -122,10 +128,12 @@
             <li>按ESC键可以取消选择</li>
           </ol>
           <div style="margin-top: 10px; font-size: 12px; color: #666;">
-            <strong>模式说明：</strong><br>
-            • 原生模式：使用Chrome API，速度快<br>
-            • HTML2Canvas：兼容性好，支持复杂样式<br>
-            • SnapDOM：高性能，支持SVG渲染
+            <strong data-i18n="instructions.modeDescription">模式说明：</strong><br>
+            <div id="modeDetails">
+              • 原生模式：使用Chrome API，速度快<br>
+              • HTML2Canvas：兼容性好，支持复杂样式<br>
+              • SnapDOM：高性能，支持SVG渲染
+            </div>
           </div>
         </div>
       </div>
@@ -133,6 +141,7 @@
     </div>
   </div>
   
+  <script src="lang/index.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

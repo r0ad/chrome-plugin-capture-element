@@ -15,6 +15,7 @@ class ElementCapture {
     this.elementStack = [];
     this.currentStackIndex = 0;
     this.captureMode = 'snapdom'; // 默认使用SnapDOM截图模式，可选 'native'、'html2canvas' 或 'snapdom'
+    this.languageManager = null;
     
     // 绑定事件处理函数以确保正确的this上下文和函数引用
     this.boundHandleMouseMove = this.handleMouseMove.bind(this);
@@ -25,8 +26,11 @@ class ElementCapture {
     this.init();
   }
 
-  init() {
+  async init() {
     console.log('ElementCapture 初始化中...');
+    
+    // 初始化语言管理器
+    await this.initLanguageManager();
     
     // 检查依赖库是否加载
     console.log('html2canvas 可用:', typeof html2canvas !== 'undefined');
@@ -66,6 +70,72 @@ class ElementCapture {
     console.log('ElementCapture 初始化完成');
   }
 
+  // 初始化语言管理器
+  async initLanguageManager() {
+    try {
+      // 从存储中获取用户设置的语言
+      const result = await chrome.storage.sync.get(['language']);
+      const language = result.language || 'zh-CN';
+      
+      // 加载语言文件
+      const response = await fetch(chrome.runtime.getURL(`lang/${language}.json`));
+      if (response.ok) {
+        this.translations = await response.json();
+        this.currentLanguage = language;
+        console.log('语言加载成功:', language);
+      } else {
+        console.error('语言文件加载失败:', language);
+        // 使用默认中文
+        this.translations = await this.loadDefaultTranslations();
+        this.currentLanguage = 'zh-CN';
+      }
+    } catch (error) {
+      console.error('初始化语言管理器失败:', error);
+      // 使用默认中文
+      this.translations = await this.loadDefaultTranslations();
+      this.currentLanguage = 'zh-CN';
+    }
+  }
+
+  // 加载默认翻译（中文）
+  async loadDefaultTranslations() {
+    try {
+      const response = await fetch(chrome.runtime.getURL('lang/zh-CN.json'));
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (error) {
+      console.error('加载默认翻译失败:', error);
+    }
+    return {};
+  }
+
+  // 获取翻译文本
+  t(key, params = {}) {
+    if (!this.translations) return key;
+    
+    const keys = key.split('.');
+    let value = this.translations;
+    
+    for (const k of keys) {
+      if (value && typeof value === 'object' && k in value) {
+        value = value[k];
+      } else {
+        console.warn('翻译键不存在:', key);
+        return key; // 返回键名作为后备
+      }
+    }
+    
+    if (typeof value === 'string') {
+      // 替换参数
+      return value.replace(/\{(\w+)\}/g, (match, param) => {
+        return params[param] || match;
+      });
+    }
+    
+    return value || key;
+  }
+
   startElementSelection() {
     if (this.isSelecting) return;
     
@@ -79,7 +149,7 @@ class ElementCapture {
     document.addEventListener('wheel', this.boundHandleWheel, { passive: false });
     
     // 显示提示信息
-    this.showToast('🎯 悬停选择元素，滚轮切换层级，点击截图，ESC取消');
+    this.showToast(this.t('messages.selectElement'));
   }
 
   stopElementSelection() {
@@ -376,11 +446,12 @@ class ElementCapture {
     const id = element.id ? `#${element.id}` : '';
     const elementDesc = `${tagName}${id}${className}`;
     
+    const rect = element.getBoundingClientRect();
     info.innerHTML = `
-      <div style="font-weight: bold; margin-bottom: 4px;">📍 ${elementDesc}</div>
-      <div style="font-size: 12px; opacity: 0.8;">层级: ${currentLevel}/${totalLevels} | 滚轮切换</div>
-      <div style="font-size: 11px; opacity: 0.6; margin-top: 2px;">${Math.round(element.getBoundingClientRect().width)}×${Math.round(element.getBoundingClientRect().height)}px</div>
-      <div style="font-size: 10px; opacity: 0.5; margin-top: 3px; color: #00ff88;">💡 绿色高亮=悬浮预览 | 红色高亮=已选中</div>
+      <div style="font-weight: bold; margin-bottom: 4px;">${this.t('messages.elementInfo', { elementDesc })}</div>
+      <div style="font-size: 12px; opacity: 0.8;">${this.t('messages.levelInfo', { current: currentLevel, total: totalLevels })}</div>
+      <div style="font-size: 11px; opacity: 0.6; margin-top: 2px;">${this.t('messages.sizeInfo', { width: Math.round(rect.width), height: Math.round(rect.height) })}</div>
+      <div style="font-size: 10px; opacity: 0.5; margin-top: 3px; color: #00ff88;">${this.t('messages.hoverTip')}</div>
     `;
     
     info.style.cssText = `
@@ -422,18 +493,18 @@ class ElementCapture {
   handleKeyDown(event) {
     if (event.key === 'Escape') {
       this.stopElementSelection();
-      this.showToast('已取消元素选择');
+      this.showToast(this.t('messages.cancelled'));
     }
   }
 
   async captureElement(element) {
     try {
       const modeNames = {
-        'native': '原生模式',
-        'html2canvas': 'HTML2Canvas模式',
-        'snapdom': 'SnapDOM模式'
+        'native': this.t('modes.native'),
+        'html2canvas': this.t('modes.html2canvas'),
+        'snapdom': this.t('modes.snapdom')
       };
-      this.showToast(`📸 正在截图元素... (${modeNames[this.captureMode] || '未知模式'})`);
+      this.showToast(this.t('messages.capturingWithMode', { mode: modeNames[this.captureMode] || '未知模式' }));
       
       // 获取元素信息
       const elementInfo = {
@@ -456,7 +527,7 @@ class ElementCapture {
       this.stopElementSelection();
     } catch (error) {
       console.error('截图失败:', error);
-      this.showToast(`❌ 截图失败: ${error.message}`);
+      this.showToast(this.t('messages.error', { error: error.message }));
       this.stopElementSelection();
     }
   }
@@ -489,7 +560,7 @@ class ElementCapture {
       // 如果元素仍然不完全可见，尝试调整页面缩放
       const newRect = element.getBoundingClientRect();
       if (newRect.width > viewportWidth || newRect.height > viewportHeight) {
-        this.showToast('⚠️ 元素过大，可能截图不完整');
+        this.showToast(this.t('messages.elementTooLarge'));
       }
     }
   }
@@ -536,15 +607,15 @@ class ElementCapture {
       }, (response) => {
         if (chrome.runtime.lastError) {
           console.error('消息发送失败:', chrome.runtime.lastError);
-          this.showToast(`❌ 连接失败: ${chrome.runtime.lastError.message}`);
+          this.showToast(this.t('messages.connectionFailed', { error: chrome.runtime.lastError.message }));
           return;
         }
         
         if (response && response.success) {
-          this.showToast(`✅ 截图已保存: ${response.filename}`);
+          this.showToast(this.t('messages.success', { filename: response.filename }));
         } else {
           console.error('原生截图失败:', response);
-          this.showToast(`🔄 原生模式失败，自动切换到兼容模式...`);
+          this.showToast(this.t('messages.fallbackToCompatible'));
           // 自动切换到html2canvas模式重试
           setTimeout(() => {
             this.captureWithHtml2Canvas(element, elementInfo);
@@ -553,7 +624,7 @@ class ElementCapture {
       });
     } catch (error) {
       console.error('发送消息异常:', error);
-      this.showToast(`❌ 发送消息失败: ${error.message}`);
+      this.showToast(this.t('messages.sendMessageFailed', { error: error.message }));
     }
   }
   
@@ -562,11 +633,11 @@ class ElementCapture {
     try {
       // 检查snapdom是否可用
       if (typeof snapdom === 'undefined') {
-        this.showToast('❌ SnapDOM库未加载');
+        this.showToast(this.t('messages.snapdomFailed'));
         return;
       }
       
-      this.showToast('📸 使用SnapDOM进行截图...');
+      this.showToast(this.t('messages.capturing'));
       
       console.log('开始SnapDOM截图，元素:', element);
       console.log('SnapDOM可用方法:', Object.keys(snapdom));
@@ -629,31 +700,31 @@ class ElementCapture {
       }, (response) => {
         if (chrome.runtime.lastError) {
           console.error('下载消息发送失败:', chrome.runtime.lastError);
-          this.showToast(`❌ 连接失败: ${chrome.runtime.lastError.message}`);
+          this.showToast(this.t('messages.connectionFailed', { error: chrome.runtime.lastError.message }));
           return;
         }
         
         if (response && response.success) {
-          this.showToast(`✅ 截图已保存: ${response.filename}`);
+          this.showToast(this.t('messages.success', { filename: response.filename }));
         } else {
           console.error('下载响应错误:', response);
-          this.showToast(`❌ 下载失败: ${response?.error || '未知错误'}`);
+          this.showToast(this.t('messages.downloadFailed', { error: response?.error || '未知错误' }));
         }
       });
       
     } catch (error) {
       console.error('SnapDOM截图失败:', error);
-      this.showToast(`❌ SnapDOM截图失败: ${error.message}`);
+      this.showToast(this.t('messages.error', { error: error.message }));
       
       // 如果SnapDOM失败，自动回退到HTML2Canvas
       console.log('SnapDOM失败，自动切换到HTML2Canvas模式');
-      this.showToast('🔄 SnapDOM失败，切换到HTML2Canvas模式...');
+      this.showToast(this.t('messages.fallbackToHtml2Canvas'));
       
       try {
         await this.captureWithHtml2Canvas(element, elementInfo);
       } catch (fallbackError) {
         console.error('HTML2Canvas回退也失败:', fallbackError);
-        this.showToast(`❌ 所有截图方式都失败: ${fallbackError.message}`);
+        this.showToast(this.t('messages.error', { error: fallbackError.message }));
       }
     }
   }
@@ -663,7 +734,7 @@ class ElementCapture {
     try {
       // 检查html2canvas是否可用
       if (typeof html2canvas === 'undefined') {
-        this.showToast('❌ HTML2Canvas库未加载');
+        this.showToast(this.t('messages.html2canvasFailed'));
         return;
       }
       
@@ -703,32 +774,32 @@ class ElementCapture {
               }, (response) => {
                 if (chrome.runtime.lastError) {
                   console.error('下载消息发送失败:', chrome.runtime.lastError);
-                  this.showToast(`❌ 连接失败: ${chrome.runtime.lastError.message}`);
+                  this.showToast(this.t('messages.connectionFailed', { error: chrome.runtime.lastError.message }));
                   return;
                 }
                 
                 if (response && response.success) {
-                  this.showToast(`✅ 截图已保存: ${response.filename}`);
+                  this.showToast(this.t('messages.success', { filename: response.filename }));
                 } else {
                   console.error('下载响应错误:', response);
-                  this.showToast(`❌ 下载失败: ${response?.error || '未知错误'}`);
+                  this.showToast(this.t('messages.downloadFailed', { error: response?.error || '未知错误' }));
                 }
               });
             } catch (error) {
               console.error('发送下载消息异常:', error);
-              this.showToast(`❌ 发送消息失败: ${error.message}`);
+              this.showToast(this.t('messages.sendMessageFailed', { error: error.message }));
             }
           };
           reader.readAsDataURL(blob);
         } catch (error) {
           console.error('处理截图失败:', error);
-          this.showToast('❌ 处理截图失败');
+          this.showToast(this.t('messages.processingFailed'));
         }
       }, 'image/png', 1.0);
       
     } catch (error) {
       console.error('HTML2Canvas截图失败:', error);
-      this.showToast(`❌ HTML2Canvas截图失败: ${error.message}`);
+      this.showToast(this.t('messages.error', { error: error.message }));
     }
   }
 

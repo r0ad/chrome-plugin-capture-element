@@ -1,0 +1,79 @@
+{
+  "app": {
+    "title": "元素截图工具",
+    "name": "元素截图工具",
+    "settings": "设置"
+  },
+  "status": {
+    "currentMode": "当前默认模式",
+    "ready": "准备就绪",
+    "loading": "正在加载...",
+    "capturing": "正在截图...",
+    "success": "截图成功",
+    "error": "截图失败"
+  },
+  "modes": {
+    "snapdom": "SnapDOM",
+    "html2canvas": "HTML2Canvas",
+    "native": "原生模式",
+    "snapdomDesc": "高性能，支持SVG渲染",
+    "html2canvasDesc": "兼容性好，支持复杂样式",
+    "nativeDesc": "使用Chrome API，速度快",
+    "recommended": "推荐"
+  },
+  "ui": {
+    "defaultCaptureMode": "默认截图模式",
+    "defaultCaptureModeDesc": "选择点击插件图标时的默认截图方式",
+    "startCapture": "开始截图",
+    "stopCapture": "停止截图",
+    "language": "语言",
+    "chinese": "中文",
+    "english": "English"
+  },
+  "instructions": {
+    "title": "使用说明",
+    "steps": [
+      "选择截图模式（原生/HTML2Canvas/SnapDOM）",
+      "点击\"开始截图\"按钮",
+      "将鼠标悬停在要截图的元素上",
+      "点击选中的元素进行截图",
+      "截图将自动保存到下载文件夹",
+      "按ESC键可以取消选择"
+    ],
+    "modeDescription": "模式说明：",
+    "modeDetails": [
+      "原生模式：使用Chrome API，速度快",
+      "HTML2Canvas：兼容性好，支持复杂样式",
+      "SnapDOM：高性能，支持SVG渲染"
+    ]
+  },
+  "tips": {
+    "clickIcon": "点击插件图标可直接开始截图",
+    "rightClickMenu": "右键菜单中也有\"截图设置\"选项"
+  },
+  "messages": {
+    "selectElement": "🎯 悬停选择元素，滚轮切换层级，点击截图，ESC取消",
+    "capturing": "📸 正在截图元素...",
+    "capturingWithMode": "📸 正在截图元素... ({mode})",
+    "success": "✅ 截图已保存: {filename}",
+    "error": "❌ 截图失败: {error}",
+    "cancelled": "已取消元素选择",
+    "elementInfo": "📍 {elementDesc}",
+    "levelInfo": "层级: {current}/{total} | 滚轮切换",
+    "sizeInfo": "{width}×{height}px",
+    "hoverTip": "💡 绿色高亮=悬浮预览 | 红色高亮=已选中",
+    "snapdomFailed": "❌ SnapDOM库未加载",
+    "html2canvasFailed": "❌ HTML2Canvas库未加载",
+    "connectionFailed": "❌ 连接失败: {error}",
+    "downloadFailed": "❌ 下载失败: {error}",
+    "sendMessageFailed": "❌ 发送消息失败: {error}",
+    "processingFailed": "❌ 处理截图失败",
+    "fallbackToHtml2Canvas": "🔄 SnapDOM失败，切换到HTML2Canvas模式...",
+    "fallbackToCompatible": "🔄 原生模式失败，自动切换到兼容模式...",
+    "elementTooLarge": "⚠️ 元素过大，可能截图不完整"
+  },
+  "contextMenu": {
+    "startElementCapture": "开始元素截图",
+    "captureSettings": "截图设置"
+  }
+}

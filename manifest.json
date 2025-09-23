@@ -26,6 +26,12 @@
       "css": ["content.css"]
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["lang/*.json"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   
   "icons": {
      "16": "icons/icon16.png",

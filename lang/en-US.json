@@ -1,0 +1,79 @@
+{
+  "app": {
+    "title": "Element Capture Tool",
+    "name": "Element Screenshot Capture",
+    "settings": "Settings"
+  },
+  "status": {
+    "currentMode": "Current Default Mode",
+    "ready": "Ready",
+    "loading": "Loading...",
+    "capturing": "Capturing...",
+    "success": "Capture Success",
+    "error": "Capture Failed"
+  },
+  "modes": {
+    "snapdom": "SnapDOM",
+    "html2canvas": "HTML2Canvas",
+    "native": "Native Mode",
+    "snapdomDesc": "High performance, SVG support",
+    "html2canvasDesc": "Good compatibility, complex styles",
+    "nativeDesc": "Uses Chrome API, fast speed",
+    "recommended": "Recommended"
+  },
+  "ui": {
+    "defaultCaptureMode": "Default Capture Mode",
+    "defaultCaptureModeDesc": "Choose the default capture method when clicking the extension icon",
+    "startCapture": "Start Capture",
+    "stopCapture": "Stop Capture",
+    "language": "Language",
+    "chinese": "中文",
+    "english": "English"
+  },
+  "instructions": {
+    "title": "Instructions",
+    "steps": [
+      "Select capture mode (Native/HTML2Canvas/SnapDOM)",
+      "Click 'Start Capture' button",
+      "Hover over the element you want to capture",
+      "Click on the selected element to capture",
+      "Screenshot will be automatically saved to Downloads folder",
+      "Press ESC to cancel selection"
+    ],
+    "modeDescription": "Mode Description:",
+    "modeDetails": [
+      "Native Mode: Uses Chrome API, fast speed",
+      "HTML2Canvas: Good compatibility, supports complex styles",
+      "SnapDOM: High performance, SVG support"
+    ]
+  },
+  "tips": {
+    "clickIcon": "Click the extension icon to start capture directly",
+    "rightClickMenu": "Right-click menu also has 'Capture Settings' option"
+  },
+  "messages": {
+    "selectElement": "🎯 Hover to select element, scroll to switch levels, click to capture, ESC to cancel",
+    "capturing": "📸 Capturing element...",
+    "capturingWithMode": "📸 Capturing element... ({mode})",
+    "success": "✅ Screenshot saved: {filename}",
+    "error": "❌ Capture failed: {error}",
+    "cancelled": "Element selection cancelled",
+    "elementInfo": "📍 {elementDesc}",
+    "levelInfo": "Level: {current}/{total} | Scroll to switch",
+    "sizeInfo": "{width}×{height}px",
+    "hoverTip": "💡 Green highlight=hover preview | Red highlight=selected",
+    "snapdomFailed": "❌ SnapDOM library not loaded",
+    "html2canvasFailed": "❌ HTML2Canvas library not loaded",
+    "connectionFailed": "❌ Connection failed: {error}",
+    "downloadFailed": "❌ Download failed: {error}",
+    "sendMessageFailed": "❌ Send message failed: {error}",
+    "processingFailed": "❌ Processing screenshot failed",
+    "fallbackToHtml2Canvas": "🔄 SnapDOM failed, switching to HTML2Canvas mode...",
+    "fallbackToCompatible": "🔄 Native mode failed, auto-switching to compatible mode...",
+    "elementTooLarge": "⚠️ Element too large, screenshot may be incomplete"
+  },
+  "contextMenu": {
+    "startElementCapture": "Start Element Capture",
+    "captureSettings": "Capture Settings"
+  }
+}
