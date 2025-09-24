@@ -442,7 +442,8 @@ class ElementCapture {
     
     // 获取元素描述
     const tagName = element.tagName.toLowerCase();
-    const className = element.className ? `.${element.className.split(' ').join('.')}` : '';
+    const className = element.className && typeof element.className === 'string' 
+      ? `.${element.className.split(' ').join('.')}` : '';
     const id = element.id ? `#${element.id}` : '';
     const elementDesc = `${tagName}${id}${className}`;
     
@@ -506,11 +507,11 @@ class ElementCapture {
       };
       this.showToast(this.t('messages.capturingWithMode', { mode: modeNames[this.captureMode] || '未知模式' }));
       
-      // 获取元素信息
+      // 获取元素信息，使用安全函数处理
       const elementInfo = {
-        tagName: element.tagName,
-        className: element.className,
-        id: element.id
+        tagName: this.safeString(element.tagName, 'unknown'),
+        className: this.safeString(element.className, ''),
+        id: this.safeString(element.id, '')
       };
       
       // 确保元素完全可见
@@ -532,6 +533,56 @@ class ElementCapture {
     }
   }
   
+  // 安全处理字符串，防止类型错误
+  safeString(value, defaultValue = '') {
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (value && typeof value.toString === 'function') {
+      return value.toString();
+    }
+    return defaultValue;
+  }
+
+  // 安全处理className，返回第一个类名
+  safeClassName(className) {
+    const safeClass = this.safeString(className);
+    if (safeClass && safeClass.includes(' ')) {
+      return safeClass.split(' ')[0];
+    }
+    return safeClass;
+  }
+
+  // 检测页面缩放级别
+  detectPageZoom() {
+    try {
+      // 方法1：通过window.outerWidth和window.innerWidth计算
+      const zoom1 = Math.round((window.outerWidth / window.innerWidth) * 100) / 100;
+      
+      // 方法2：通过devicePixelRatio和screen.width计算
+      const zoom2 = window.devicePixelRatio || 1;
+      
+      // 方法3：通过document.documentElement.clientWidth计算
+      const zoom3 = Math.round((document.documentElement.clientWidth / window.innerWidth) * 100) / 100;
+      
+      // 选择最可靠的缩放值
+      let detectedZoom = zoom1;
+      if (Math.abs(zoom1 - 1) > 0.1) {
+        detectedZoom = zoom1;
+      } else if (Math.abs(zoom2 - 1) > 0.1) {
+        detectedZoom = zoom2;
+      } else {
+        detectedZoom = zoom3;
+      }
+      
+      console.log('缩放检测结果:', { zoom1, zoom2, zoom3, final: detectedZoom });
+      return Math.max(0.25, Math.min(5, detectedZoom)); // 限制在0.25-5之间
+    } catch (error) {
+      console.warn('缩放检测失败，使用默认值:', error);
+      return 1;
+    }
+  }
+
   // 确保元素完全可见
   async ensureElementVisible(element) {
     const rect = element.getBoundingClientRect();
@@ -642,16 +693,82 @@ class ElementCapture {
       console.log('开始SnapDOM截图，元素:', element);
       console.log('SnapDOM可用方法:', Object.keys(snapdom));
       
-      // 使用SnapDOM API，根据源码分析使用正确的参数
-      const result = await snapdom(element, {
-        scale: Math.max(window.devicePixelRatio || 1, 2),
+      // 获取元素的实际尺寸和位置
+      const rect = element.getBoundingClientRect();
+      const computedStyle = window.getComputedStyle(element);
+      
+      // 检测页面缩放级别
+      const zoomLevel = this.detectPageZoom();
+      console.log('页面缩放级别:', zoomLevel);
+      
+      // 计算合适的缩放比例，考虑页面缩放
+      const devicePixelRatio = window.devicePixelRatio || 1;
+      let optimalScale = Math.min(Math.max(devicePixelRatio, 1), 3); // 限制在1-3之间
+      
+      // 如果页面被放大，降低SnapDOM的scale以避免渲染问题
+      if (zoomLevel > 1) {
+        optimalScale = Math.max(1, optimalScale / zoomLevel);
+        console.log('页面放大检测到，调整SnapDOM缩放比例:', optimalScale);
+      }
+      
+      console.log('SnapDOM参数调试:', {
+        elementSize: { width: rect.width, height: rect.height },
+        devicePixelRatio: devicePixelRatio,
+        optimalScale: optimalScale,
+        zoomLevel: zoomLevel,
+        elementStyle: {
+          display: computedStyle.display,
+          visibility: computedStyle.visibility,
+          overflow: computedStyle.overflow
+        }
+      });
+      
+      // 如果页面放大超过150%，使用更保守的配置
+      const isHighZoom = zoomLevel > 1.5;
+      if (isHighZoom) {
+        console.log('检测到高缩放级别，使用保守配置');
+        optimalScale = Math.max(1, optimalScale * 0.8); // 进一步降低缩放
+      }
+      
+      // 使用SnapDOM API，优化参数配置
+      const snapdomConfig = {
+        scale: optimalScale, // 使用优化后的缩放比例
         backgroundColor: '#ffffff',
         quality: 1.0,
         fast: false, // 关闭快速模式以确保更好的渲染质量
         embedFonts: true, // 嵌入字体以确保文本渲染一致
-        dpr: window.devicePixelRatio || 1, // 使用设备像素比
-        cache: 'disabled' // 禁用缓存确保每次都是最新渲染
-      });
+        // 移除dpr参数，避免与scale冲突
+        cache: 'disabled', // 禁用缓存确保每次都是最新渲染
+        // 新增参数以提高稳定性
+        removeContainer: true, // 移除容器元素
+        includeHiddenElements: false, // 排除隐藏元素
+        onclone: (clonedDoc, element) => {
+          // 确保克隆的元素完全可见
+          const clonedElement = clonedDoc.querySelector(`[data-capture-target="true"]`);
+          if (clonedElement) {
+            clonedElement.style.visibility = 'visible';
+            clonedElement.style.display = 'block';
+            clonedElement.style.overflow = 'visible';
+            
+            // 针对高缩放情况，确保元素样式正确
+            if (isHighZoom) {
+              clonedElement.style.transform = 'none';
+              clonedElement.style.transformOrigin = 'top left';
+              clonedElement.style.position = 'static';
+            }
+          }
+        }
+      };
+      
+      // 针对高缩放情况，添加特殊配置
+      if (isHighZoom) {
+        snapdomConfig.width = Math.round(rect.width);
+        snapdomConfig.height = Math.round(rect.height);
+        console.log('高缩放模式，设置固定尺寸:', { width: snapdomConfig.width, height: snapdomConfig.height });
+      }
+      
+      console.log('SnapDOM最终配置:', snapdomConfig);
+      const result = await snapdom(element, snapdomConfig);
       
       console.log('SnapDOM结果对象:', result);
       console.log('结果对象方法:', Object.keys(result));
@@ -716,8 +833,31 @@ class ElementCapture {
       console.error('SnapDOM截图失败:', error);
       this.showToast(this.t('messages.error', { error: error.message }));
       
-      // 如果SnapDOM失败，自动回退到HTML2Canvas
-      console.log('SnapDOM失败，自动切换到HTML2Canvas模式');
+      // 智能回退机制：根据错误类型选择最佳回退方案
+      console.log('SnapDOM失败，分析错误类型并选择回退方案');
+      
+      // 检查是否是缩放相关错误
+      const isScaleError = error.message.includes('scale') || 
+                          error.message.includes('size') || 
+                          error.message.includes('dimension');
+      
+      // 检查当前页面缩放级别
+      const currentZoom = this.detectPageZoom();
+      const isHighZoom = currentZoom > 1.5;
+      
+      if (isScaleError || isHighZoom) {
+        console.log('检测到缩放相关错误或高缩放级别，尝试使用原生API');
+        this.showToast(`检测到缩放问题(缩放: ${Math.round(currentZoom * 100)}%)，切换到原生模式`);
+        try {
+          await this.captureWithNativeAPI(element, elementInfo);
+          return;
+        } catch (nativeError) {
+          console.error('原生API也失败:', nativeError);
+        }
+      }
+      
+      // 默认回退到HTML2Canvas
+      console.log('回退到HTML2Canvas模式');
       this.showToast(this.t('messages.fallbackToHtml2Canvas'));
       
       try {

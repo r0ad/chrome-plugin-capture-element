@@ -354,9 +354,10 @@ class BackgroundService {
       const elementInfo = captureData.elementInfo || {};
       const elementName = elementInfo.tagName || 'element';
       const elementId = elementInfo.id ? `-${elementInfo.id}` : '';
-      const elementClass = elementInfo.className ? `-${elementInfo.className.split(' ')[0]}` : '';
+      const elementClass = this.safeClassName(elementInfo.className);
+      const classPart = elementClass ? `-${elementClass}` : '';
       
-      const filename = `${elementName.toLowerCase()}${elementId}${elementClass}-${timestamp}.png`;
+      const filename = `${elementName.toLowerCase()}${elementId}${classPart}-${timestamp}.png`;
       
       // 使用chrome.downloads API下载图片
       await chrome.downloads.download({
@@ -372,15 +373,38 @@ class BackgroundService {
     }
   }
 
+  // 安全处理字符串，防止类型错误
+  safeString(value, defaultValue = '') {
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (value && typeof value.toString === 'function') {
+      return value.toString();
+    }
+    return defaultValue;
+  }
+
+  // 安全处理className，返回第一个类名
+  safeClassName(className) {
+    const safeClass = this.safeString(className);
+    if (safeClass && safeClass.includes(' ')) {
+      return safeClass.split(' ')[0];
+    }
+    return safeClass;
+  }
+
   // 获取元素描述
   getElementDescription(elementInfo) {
     if (!elementInfo) return 'unknown';
     
-    const tagName = elementInfo.tagName || 'element';
-    const id = elementInfo.id ? `-${elementInfo.id}` : '';
-    const className = elementInfo.className ? `-${elementInfo.className.split(' ')[0]}` : '';
+    const tagName = this.safeString(elementInfo.tagName, 'element');
+    const id = this.safeString(elementInfo.id, '');
+    const className = this.safeClassName(elementInfo.className);
     
-    return `${tagName.toLowerCase()}${id}${className}`;
+    const idPart = id ? `-${id}` : '';
+    const classPart = className ? `-${className}` : '';
+    
+    return `${tagName.toLowerCase()}${idPart}${classPart}`;
   }
 
 
